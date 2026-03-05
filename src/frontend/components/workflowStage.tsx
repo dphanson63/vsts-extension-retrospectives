@@ -1,8 +1,8 @@
-﻿import React from 'react';
-import classNames from 'classnames';
-import { WorkflowPhase } from '../interfaces/workItem';
-import { withAITracking } from '@microsoft/applicationinsights-react-js';
-import { reactPlugin } from '../utilities/telemetryClient';
+﻿import React, { useCallback } from "react";
+import { cn } from "../utilities/classNameHelper";
+import { WorkflowPhase } from "../interfaces/workItem";
+import { useTrackMetric } from "@microsoft/applicationinsights-react-js";
+import { reactPlugin } from "../utilities/telemetryClient";
 
 export interface IWorkflowStageProps {
   display: string;
@@ -12,45 +12,40 @@ export interface IWorkflowStageProps {
   clickEventCallback: (clickedElement: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLDivElement>, newPhase: WorkflowPhase) => void;
 }
 
-export interface IWorkflowStageState {
-}
+const WorkflowStage: React.FC<IWorkflowStageProps> = ({ display, value, isActive, ariaPosInSet, clickEventCallback }) => {
+  const trackActivity = useTrackMetric(reactPlugin, "WorkflowStage");
 
- class WorkflowStage extends React.Component<IWorkflowStageProps, IWorkflowStageState> {
-  constructor(props: IWorkflowStageProps) {
-    super(props);
-    this.state = { };
-  }
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      clickEventCallback(event, value);
+    },
+    [clickEventCallback, value],
+  );
 
-  public clickWorkflowState = (clickedElement: React.MouseEvent<HTMLElement>, newState: WorkflowPhase) => {
-    this.props.clickEventCallback(clickedElement, newState);
-  }
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === "Enter") {
+        clickEventCallback(event, value);
+      }
+    },
+    [clickEventCallback, value],
+  );
 
-  public render() {
-    const classes = classNames( 'retrospective-workflowState', { active: ( this.props.isActive ) });
-    const ariaLabel = this.props.isActive ? 'Selected ' + this.props.display + ' workflow stage' : 'Not selected ' + this.props.display + ' workflow stage';
+  const classes = cn("workflow-stage-tab", isActive && "workflow-stage-tab--active");
 
-    return (
-      <div className={classes}
-        aria-setsize={4}
-        aria-posinset={this.props.ariaPosInSet}
-        aria-label={ariaLabel}
-        role="tab"
-        onClick={ (e) => this.clickWorkflowState(e, this.props.value) }
-        onKeyDown={ (e: React.KeyboardEvent<HTMLDivElement>) => this.handleKeyPressWorkFlowState(e, this.props.value) }
-        tabIndex={0}>
-        <p className="stage-text">
-          {this.props.display}
-        </p>
-      </div>
-    );
-  }
+  const combinedKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      trackActivity();
+      handleKeyDown(event);
+    },
+    [trackActivity, handleKeyDown],
+  );
 
-  private handleKeyPressWorkFlowState = (event: React.KeyboardEvent<HTMLDivElement>, newState: WorkflowPhase) => {
-    if (event.keyCode === 13) {
-      this.props.clickEventCallback(event, newState);
-    }
-    return;
-  }
-}
+  return (
+    <div className={classes} aria-setsize={4} aria-posinset={ariaPosInSet} aria-label={display} aria-selected={isActive} role="tab" onClick={handleClick} onKeyDown={combinedKeyDown} onMouseMove={trackActivity} onTouchStart={trackActivity} tabIndex={0}>
+      <p className="stage-text">{display}</p>
+    </div>
+  );
+};
 
-export default withAITracking(reactPlugin, WorkflowStage);
+export default WorkflowStage;

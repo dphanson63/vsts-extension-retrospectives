@@ -1,12 +1,10 @@
-﻿import React from 'react';
-import { getService } from 'azure-devops-extension-sdk';
-import { WorkItem, WorkItemType } from 'azure-devops-extension-api/WorkItemTracking/WorkItemTracking';
-import { DocumentCard, DocumentCardTitle, DocumentCardType } from 'office-ui-fabric-react/lib/DocumentCard';
-import { Image } from 'office-ui-fabric-react/lib/Image';
-import { WorkItemTrackingServiceIds, IWorkItemFormNavigationService } from 'azure-devops-extension-api/WorkItemTracking';
-import { DetailsList, DetailsListLayoutMode, SelectionMode, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
-import { withAITracking } from '@microsoft/applicationinsights-react-js';
-import { reactPlugin } from '../utilities/telemetryClient';
+﻿import React, { useState, useMemo, useCallback } from "react";
+import { getService } from "azure-devops-extension-sdk";
+import { WorkItem, WorkItemType } from "azure-devops-extension-api/WorkItemTracking/WorkItemTracking";
+import { WorkItemTrackingServiceIds, IWorkItemFormNavigationService } from "azure-devops-extension-api/WorkItemTracking";
+import { useTrackMetric } from "@microsoft/applicationinsights-react-js";
+import { reactPlugin } from "../utilities/telemetryClient";
+import { getIconElement } from "./icons";
 
 export interface IBoardSummaryProps {
   actionItems: WorkItem[];
@@ -17,11 +15,6 @@ export interface IBoardSummaryProps {
   supportedWorkItemTypes: WorkItemType[];
 }
 
-interface IBoardSummaryState {
-  actionItemTableItems: IActionItemsTableProps[];
-  actionItemTableColumns: IColumn[];
-}
-
 interface IIconProps {
   name: string;
   class: string;
@@ -29,8 +22,7 @@ interface IIconProps {
 }
 
 interface IActionItemsTableProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+  [key: string]: string | number | IIconProps | ((id: number) => void);
   icon: IIconProps;
   title: string;
   state: string;
@@ -42,269 +34,330 @@ interface IActionItemsTableProps {
   onActionItemClick: (id: number) => void;
 }
 
-class BoardSummary extends React.Component<IBoardSummaryProps, IBoardSummaryState> {
-  constructor(props: IBoardSummaryProps) {
-    super(props);
+interface IActionItemsColumn {
+  ariaLabel: string;
+  key: string;
+  name: string;
+  fieldName?: string;
+  isIconOnly?: boolean;
+  isResizable?: boolean;
+  minWidth?: number;
+  maxWidth?: number;
+  isSortable?: boolean;
+  onRender?: (item: IActionItemsTableProps) => React.ReactNode;
+}
 
-    const actionItemsTableColumns: IColumn[] = [
-      {
-        ariaLabel: 'Work item type icon',
-        fieldName: 'icon',
-        isIconOnly: true,
-        isResizable: false,
-        key: 'icon',
-        maxWidth: 16,
-        minWidth: 16,
-        name: 'Work Item Icon',
-        onRender: ({ icon, type }: IActionItemsTableProps) => {
-          return <Image
-            src={icon.url}
-            className="work-item-type-icon"
-            alt={`${type} icon`}
-          />;
-        }
-      },
-      {
-        ariaLabel: 'Work item title.',
-        fieldName: 'title',
-        isResizable: true,
-        key: 'title',
-        maxWidth: 350,
-        minWidth: 100,
-        name: 'Title',
-        onColumnClick: this.onColumnClick,
-        onRender: ({ id, title, onActionItemClick }: IActionItemsTableProps) => {
-          return <button
-            onClick={() => {
-              onActionItemClick(id);
-            }}
-            className="work-item-title overflow-ellipsis">
-            {title}
-          </button>;
-        }
-      },
-      {
-        key: 'state',
-        name: 'State',
-        fieldName: 'state',
-        minWidth: 50,
-        maxWidth: 100,
-        isResizable: true,
-        ariaLabel: 'Work item state.',
-        onColumnClick: this.onColumnClick,
-      },
-      {
-        key: 'type',
-        name: 'Type',
-        fieldName: 'type',
-        minWidth: 50,
-        maxWidth: 100,
-        isResizable: true,
-        ariaLabel: 'Work item type.',
-        onColumnClick: this.onColumnClick,
-      },
-      {
-        key: 'changedDate',
-        name: 'Last Updated',
-        fieldName: 'changedDate',
-        minWidth: 100,
-        maxWidth: 150,
-        isResizable: true,
-        ariaLabel: 'Work item changed date.',
-        onRender: ({ changedDate }: IActionItemsTableProps) => {
-          const changedDateAsDate = new Date(changedDate);
-          return <div
-            className="overflow-ellipsis">
-            {new Intl.DateTimeFormat('en-US',
-              { year: 'numeric', month: 'short', day: 'numeric' }
-            ).format(changedDateAsDate)}
-          </div>;
-        },
-        onColumnClick: this.onColumnClick,
-      },
-      {
-        key: 'assignedTo',
-        name: 'Assigned To',
-        fieldName: 'assignedTo',
-        minWidth: 100,
-        maxWidth: 400,
-        isResizable: true,
-        ariaLabel: 'Work item assigned to.',
-        onColumnClick: this.onColumnClick,
-      },
-      {
-        key: 'priority',
-        name: 'Priority',
-        fieldName: 'priority',
-        minWidth: 50,
-        maxWidth: 50,
-        isResizable: true,
-        ariaLabel: 'Work item priority.',
-        onColumnClick: this.onColumnClick,
-      },
-    ];
+const getIconForWorkItemType = (type: string, supportedWorkItemTypes: WorkItemType[]): IIconProps => {
+  const workItemType: WorkItemType = supportedWorkItemTypes.find(wit => wit.name === type);
 
-    this.state = {
-      actionItemTableItems: new Array<IActionItemsTableProps>(),
-      actionItemTableColumns: actionItemsTableColumns
-    };
+  return {
+    name: workItemType.name,
+    class: workItemType.icon.id,
+    url: workItemType.icon.url,
+  };
+};
+
+export const sortActionItemsByColumn = (actionItems: IActionItemsTableProps[], columnName: string, descending = false): IActionItemsTableProps[] => {
+  if (descending) {
+    return actionItems.sort((itemA: IActionItemsTableProps, itemB: IActionItemsTableProps) => {
+      if (itemA[columnName] < itemB[columnName]) {
+        return 1;
+      }
+      if (itemA[columnName] > itemB[columnName]) {
+        return -1;
+      }
+      return 0;
+    });
+  } else {
+    return actionItems.sort((itemA: IActionItemsTableProps, itemB: IActionItemsTableProps) => {
+      if (itemA[columnName] < itemB[columnName]) {
+        return -1;
+      }
+      if (itemA[columnName] > itemB[columnName]) {
+        return 1;
+      }
+      return 0;
+    });
   }
+};
 
-  public componentDidMount() {
-    const actionItemTableItems = this.buildActionItemsList();
+export const BoardSummary: React.FC<IBoardSummaryProps> = ({ actionItems, pendingWorkItemsCount, resolvedActionItemsCount, boardName, feedbackItemsCount, supportedWorkItemTypes }) => {
+  const trackActivity = useTrackMetric(reactPlugin, "BoardSummary");
 
-    this.setState({ actionItemTableItems });
-  }
-
-  private readonly getIconForWorkItemType = (type: string): IIconProps => {
-    const workItemType: WorkItemType = this.props.supportedWorkItemTypes.find(wit => wit.name === type);
-
-    return {
-      name: workItemType.name,
-      class: workItemType.icon.id,
-      url: workItemType.icon.url,
-    };
-  }
-
-  private readonly buildActionItemsList = () => {
+  const buildActionItemsList = useCallback(() => {
     const actionItemsList = new Array<IActionItemsTableProps>();
 
-    this.props.actionItems.forEach(workItem => {
+    actionItems.forEach(workItem => {
       const item: IActionItemsTableProps = {
-        icon: this.getIconForWorkItemType(workItem.fields['System.WorkItemType']),
-        title: workItem.fields['System.Title'],
-        state: workItem.fields['System.State'],
-        type: workItem.fields['System.WorkItemType'],
-        changedDate: workItem.fields['System.ChangedDate'],
-        assignedTo: workItem.fields['System.AssignedTo']?.displayName ?? "",
-        priority: workItem.fields['Microsoft.VSTS.Common.Priority'],
+        icon: getIconForWorkItemType(workItem.fields["System.WorkItemType"], supportedWorkItemTypes),
+        title: workItem.fields["System.Title"],
+        state: workItem.fields["System.State"],
+        type: workItem.fields["System.WorkItemType"],
+        changedDate: workItem.fields["System.ChangedDate"],
+        assignedTo: workItem.fields["System.AssignedTo"]?.displayName ?? "",
+        priority: workItem.fields["Microsoft.VSTS.Common.Priority"],
         id: workItem.id,
         onActionItemClick: async (id: number) => {
           const workItemNavSvc = await getService<IWorkItemFormNavigationService>(WorkItemTrackingServiceIds.WorkItemFormNavigationService);
           await workItemNavSvc.openWorkItem(id);
-        }
+        },
       };
 
       actionItemsList.push(item);
     });
 
     return actionItemsList;
-  }
+  }, [actionItems, supportedWorkItemTypes]);
 
-  private readonly onColumnClick = (_: React.MouseEvent<HTMLElement>, column: IColumn): void => {
-    const actionItems = this.state.actionItemTableItems;
-    let newActionItems = actionItems.slice();
+  const [actionItemTableItems, setActionItemTableItems] = useState<IActionItemsTableProps[]>(() => buildActionItemsList());
 
-    const newTableColumns: IColumn[] = this.state.actionItemTableColumns.slice();
-    const currColumn: IColumn = newTableColumns.filter((currCol: IColumn) => {
-      return column.key === currCol.key;
-    })[0];
-    newTableColumns.forEach((newCol: IColumn) => {
-      if (newCol === currColumn) {
-        currColumn.isSortedDescending = !currColumn.isSortedDescending;
-        currColumn.isSorted = true;
-      } else {
-        newCol.isSorted = false;
-        newCol.isSortedDescending = true;
-      }
+  const onColumnClick = useCallback((column: IActionItemsColumn): void => {
+    if (!column.fieldName || !column.isSortable) {
+      return;
+    }
+
+    setActionItemTableItems(prevItems => {
+      let newActionItems = prevItems.slice();
+
+      setActionItemTableColumns(prevColumns => {
+        const newTableColumns: IActionItemsColumn[] = prevColumns.slice();
+        const currColumn = newTableColumns.filter(currCol => {
+          return column.key === currCol.key;
+        })[0];
+
+        if (!currColumn?.fieldName || !currColumn.isSortable) {
+          return newTableColumns;
+        }
+
+        newTableColumns.forEach(newCol => {
+          if (newCol === currColumn) {
+            const currentDescending = (currColumn as IActionItemsColumn & { isSortedDescending?: boolean; isSorted?: boolean }).isSortedDescending ?? false;
+            const isSorted = (currColumn as IActionItemsColumn & { isSorted?: boolean }).isSorted ?? false;
+            (currColumn as IActionItemsColumn & { isSortedDescending: boolean; isSorted: boolean }).isSortedDescending = isSorted ? !currentDescending : false;
+            (currColumn as IActionItemsColumn & { isSorted: boolean }).isSorted = true;
+          } else {
+            (newCol as IActionItemsColumn & { isSorted: boolean; isSortedDescending: boolean }).isSorted = false;
+            (newCol as IActionItemsColumn & { isSortedDescending: boolean }).isSortedDescending = false;
+          }
+        });
+
+        const isSortedDescending = (currColumn as IActionItemsColumn & { isSortedDescending: boolean }).isSortedDescending;
+        newActionItems = sortActionItemsByColumn(newActionItems, currColumn.fieldName, isSortedDescending);
+        return newTableColumns;
+      });
+
+      return newActionItems;
     });
+  }, []);
 
-    newActionItems = this.sortActionItemsByColumn(newActionItems, currColumn.fieldName || '', currColumn.isSortedDescending);
-    this.setState({
-      actionItemTableColumns: newTableColumns,
-      actionItemTableItems: newActionItems
-    });
-  }
+  const initialColumns = useMemo(
+    (): (IActionItemsColumn & { isSorted?: boolean; isSortedDescending?: boolean })[] => [
+      {
+        ariaLabel: "Work item type icon",
+        key: "icon",
+        name: "Work Item Icon",
+        fieldName: "icon",
+        isIconOnly: true,
+        isResizable: false,
+        minWidth: 16,
+        maxWidth: 16,
+        onRender: ({ icon, type }: IActionItemsTableProps) => {
+          return <img src={icon.url} className="work-item-type-icon" alt={`${type} icon`} />;
+        },
+      },
+      {
+        ariaLabel: "Work item title",
+        key: "title",
+        name: "Title",
+        fieldName: "title",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        maxWidth: 350,
+        minWidth: 100,
+        onRender: ({ id, title, onActionItemClick }: IActionItemsTableProps) => {
+          return (
+            <button
+              onClick={() => {
+                onActionItemClick(id);
+              }}
+              className="work-item-title overflow-ellipsis"
+            >
+              {title}
+            </button>
+          );
+        },
+      },
+      {
+        ariaLabel: "Work item state",
+        key: "state",
+        name: "State",
+        fieldName: "state",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        minWidth: 50,
+        maxWidth: 100,
+      },
+      {
+        ariaLabel: "Work item type",
+        key: "type",
+        name: "Type",
+        fieldName: "type",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        minWidth: 50,
+        maxWidth: 100,
+      },
+      {
+        ariaLabel: "Work item changed date",
+        key: "changedDate",
+        name: "Last Updated",
+        fieldName: "changedDate",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        minWidth: 100,
+        maxWidth: 150,
+        onRender: ({ changedDate }: IActionItemsTableProps) => {
+          const changedDateAsDate = new Date(changedDate);
+          return <div className="overflow-ellipsis">{new Intl.DateTimeFormat("en-US", { year: "numeric", month: "short", day: "numeric" }).format(changedDateAsDate)}</div>;
+        },
+      },
+      {
+        ariaLabel: "Work item assigned to",
+        key: "assignedTo",
+        name: "Assigned To",
+        fieldName: "assignedTo",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        minWidth: 100,
+        maxWidth: 400,
+      },
+      {
+        ariaLabel: "Work item priority",
+        key: "priority",
+        name: "Priority",
+        fieldName: "priority",
+        isResizable: true,
+        isSorted: false,
+        isSortedDescending: false,
+        isSortable: true,
+        minWidth: 50,
+        maxWidth: 50,
+      },
+    ],
+    [],
+  );
 
-  private readonly onItemInvoked = async (item: { id: number }) => {
+  const [actionItemTableColumns, setActionItemTableColumns] = useState<(IActionItemsColumn & { isSorted?: boolean; isSortedDescending?: boolean })[]>(initialColumns);
+
+  const onItemInvoked = useCallback(async (item: { id: number }) => {
     const workItemNavSvc = await getService<IWorkItemFormNavigationService>(WorkItemTrackingServiceIds.WorkItemFormNavigationService);
     await workItemNavSvc.openWorkItem(item.id);
-  }
+  }, []);
 
-  private readonly sortActionItemsByColumn = (actionItems: IActionItemsTableProps[], columnName: string, descending = false): IActionItemsTableProps[] => {
-    if (descending) {
-      return actionItems.sort((itemA: IActionItemsTableProps, itemB: IActionItemsTableProps) => {
-        if (itemA[columnName] < itemB[columnName]) {
-          return 1;
-        }
-        if (itemA[columnName] > itemB[columnName]) {
-          return -1;
-        }
-        return 0;
-      });
-    } else {
-      return actionItems.sort((itemA: IActionItemsTableProps, itemB: IActionItemsTableProps) => {
-        if (itemA[columnName] < itemB[columnName]) {
-          return -1;
-        }
-        if (itemA[columnName] > itemB[columnName]) {
-          return 1;
-        }
-        return 0;
-      });
-    }
-  }
-
-  public render() {
-    return (
-      <div className="board-summary-container" aria-label="Retrospective history container">
-        <DocumentCard className="board-summary-card" type={DocumentCardType.normal} aria-label="Retrospective history card">
-          <div className="ms-DocumentCard-details board-summary-card-title">
-            <DocumentCardTitle title={this.props.boardName} shouldTruncate={false} aria-label="Retrospective name" />
-          </div>
-          <div className="items-stats-container" aria-label="feedback items statistics container">
-            <i className="stats-icon fas fa-comment-dots"></i>
-            <div className="count-and-text" aria-label="count and text container">
-              <div className="count" aria-label="feedback item count">{this.props.feedbackItemsCount}</div>
-              <div className="text">Feedback items created.</div>
+  return (
+    <div className="board-summary-container" aria-label="Retrospective history container" onKeyDown={trackActivity} onMouseMove={trackActivity} onTouchStart={trackActivity}>
+      <div className="board-summary-card" aria-label="Retrospective history card">
+        <h2 title={boardName} aria-label="Retrospective name">
+          {boardName}
+        </h2>
+        <div className="items-stats-container" aria-label="feedback items statistics container">
+          {getIconElement("sms")}
+          <div className="count-and-text" aria-label="count and text container">
+            <div className="count" aria-label="feedback item count">
+              {feedbackItemsCount}
             </div>
+            <div className="text">Feedback items created.</div>
           </div>
-          <div className="items-stats-container" aria-label="feedback items statistics container">
-            <i className="stats-icon fa-regular fa-square-plus"></i>
-            <div className="count-and-text" aria-label="count and text container">
-              <div className="count" aria-label="total work items count">{this.props.actionItems.length}</div>
-              <div className="text">Work items created.</div>
+        </div>
+        <div className="items-stats-container status-primary-text" aria-label="feedback items statistics container">
+          {getIconElement("note-add")}
+          <div className="count-and-text" aria-label="count and text container">
+            <div className="count" aria-label="total work items count">
+              {actionItems.length}
             </div>
+            <div className="text">Work items created.</div>
           </div>
-          <div className="items-stats-container" aria-label="feedback items statistics container">
-            <i className="stats-icon pending-action-item-color fa-solid fa-hourglass-half"></i>
-            <div className="count-and-text" aria-label="count and text container">
-              <div className={`count ${this.props.pendingWorkItemsCount > 0 ? 'pending-action-item-color' : ''}`} aria-label="pending work items count">
-                {this.props.pendingWorkItemsCount}</div>
-              <div className="text">Work items pending.</div>
+        </div>
+        <div className="items-stats-container status-warning-text" aria-label="feedback items statistics container">
+          {getIconElement("hourglass-top")}
+          <div className="count-and-text" aria-label="count and text container">
+            <div className={`count ${pendingWorkItemsCount > 0 ? "pending-action-item-color" : ""}`} aria-label="pending work items count">
+              {pendingWorkItemsCount}
             </div>
+            <div className="text">Work items pending.</div>
           </div>
-          <div className="items-stats-container" aria-label="feedback items statistics container">
-            <i className="stats-icon resolved-green fa-solid fa-clipboard-check"></i>
-            <div className="count-and-text" aria-label="count and text container">
-              <div className={`count ${this.props.resolvedActionItemsCount > 0 ? 'resolved-green' : ''}`} aria-label="resolved work items count">
-                {this.props.resolvedActionItemsCount}</div>
-              <div className="text">Work items resolved.</div>
+        </div>
+        <div className="items-stats-container status-success-text" aria-label="feedback items statistics container">
+          {getIconElement("assignment-turned-in")}
+          <div className="count-and-text" aria-label="count and text container">
+            <div className={`count ${resolvedActionItemsCount > 0 ? "resolved-green" : ""}`} aria-label="resolved work items count">
+              {resolvedActionItemsCount}
             </div>
+            <div className="text">Work items resolved.</div>
           </div>
-        </DocumentCard>
-        <div className="action-items-summary-card">
-          {
-            this.props.actionItems.length > 0 &&
-            <DetailsList
-              items={this.state.actionItemTableItems}
-              compact={false}
-              columns={this.state.actionItemTableColumns}
-              selectionMode={SelectionMode.none}
-              setKey="set"
-              layoutMode={DetailsListLayoutMode.justified}
-              isHeaderVisible={true}
-              selectionPreservedOnEmptyClick={true}
-              onItemInvoked={this.onItemInvoked} />
-          }
-          {
-            this.props.actionItems.length === 0 &&
-            <div className="no-action-items">Looks like no work items were created for this board.</div>
-          }
         </div>
       </div>
-    );
-  }
-}
+      <div className="action-items-summary-card">
+        {actionItems.length > 0 && (
+          <table className="board-summary-action-items-table" role="grid" aria-label="Work items summary table">
+            <thead>
+              <tr role="row">
+                {actionItemTableColumns.map((column, index) => {
+                  const isSorted = (column as IActionItemsColumn & { isSorted?: boolean }).isSorted ?? false;
+                  const isSortedDescending = (column as IActionItemsColumn & { isSortedDescending?: boolean }).isSortedDescending ?? false;
+                  const ariaSort = isSorted ? (isSortedDescending ? "descending" : "ascending") : "none";
 
-export default withAITracking(reactPlugin, BoardSummary);
+                  return (
+                    <th key={column.key} role="columnheader" aria-colindex={index + 1} aria-sort={ariaSort} data-automationid="ColumnsHeaderColumn" className={column.isSortable ? "sortable" : ""}>
+                      {column.isSortable ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onColumnClick(column);
+                          }}
+                          aria-label={column.ariaLabel}
+                        >
+                          {column.name}
+                        </button>
+                      ) : (
+                        <span aria-label={column.ariaLabel}>{column.isIconOnly ? "" : column.name}</span>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {actionItemTableItems.map(item => (
+                <tr
+                  key={item.id}
+                  role="row"
+                  onClick={() => {
+                    onItemInvoked({ id: item.id });
+                  }}
+                >
+                  {actionItemTableColumns.map(column => (
+                    <td key={`${item.id}-${column.key}`}>{column.onRender ? column.onRender(item) : String(item[column.fieldName ?? ""] ?? "")}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {actionItems.length === 0 && <div className="no-action-items">Looks like no work items were created for this board.</div>}
+      </div>
+    </div>
+  );
+};
+
+export default BoardSummary;

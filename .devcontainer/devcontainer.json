@@ -2,22 +2,27 @@
   "name": "Retrospective Extension Development Environment",
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "features": {
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
-    "ghcr.io/devcontainers/features/common-utils:2": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/dotnet:2": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/azure/azure-dev/azd:0": {}
+    "ghcr.io/devcontainers/features/azure-cli:1.2.9": {},
+    "ghcr.io/devcontainers/features/common-utils:2.5.6": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2.16.0": {},
+    "ghcr.io/devcontainers/features/dotnet:2.4.2": {},
+    "ghcr.io/devcontainers/features/github-cli:1.1.0": {},
+    "ghcr.io/devcontainers/features/node:1.7.1": {},
+    "ghcr.io/devcontainers-extra/features/apt-packages": {
+      "packages": "pre-commit,shellcheck"
+    }
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp",
-        "ms-azuretools.vscode-docker",
-        "vscode-icons-team.vscode-icons",
+        "bradlc.vscode-tailwindcss",
+        "davidanson.vscode-markdownlint",
         "editorconfig.editorconfig",
-        "davidanson.vscode-markdownlint"
+        "GitHub.copilot-chat",
+        "ms-azuretools.vscode-docker",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "vscode-icons-team.vscode-icons"
       ]
     }
   }

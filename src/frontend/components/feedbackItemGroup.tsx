@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
-import { withAITracking } from '@microsoft/applicationinsights-react-js';
-import { WorkflowPhase } from '../interfaces/workItem';
-import localStorageHelper from '../utilities/localStorageHelper';
-import { reactPlugin } from '../utilities/telemetryClient';
-import FeedbackItem, { FeedbackItemHelper, IFeedbackItemProps } from './feedbackItem';
+import { useTrackMetric } from "@microsoft/applicationinsights-react-js";
+import { WorkflowPhase } from "../interfaces/workItem";
+import localStorageHelper from "../utilities/localStorageHelper";
+import { reactPlugin } from "../utilities/telemetryClient";
+import FeedbackItem, { FeedbackItemHelper, IFeedbackItemProps } from "./feedbackItem";
 
 export interface IFeedbackItemGroupProps {
   groupedWorkItems: IFeedbackItemProps[];
@@ -12,91 +12,104 @@ export interface IFeedbackItemGroupProps {
   workflowState: WorkflowPhase;
 }
 
-export interface RetrospectiveItemGroupState {
-  isBeingDragged: boolean;
-  isGroupExpanded: boolean;
-  itemCardsStackHeight: number;
-}
+const FeedbackItemGroup: React.FC<IFeedbackItemGroupProps> = ({ groupedWorkItems, mainFeedbackItem }) => {
+  const trackActivity = useTrackMetric(reactPlugin, "FeedbackItemGroup");
 
-class FeedbackItemGroup extends React.Component<IFeedbackItemGroupProps, RetrospectiveItemGroupState> {
-  constructor(props: IFeedbackItemGroupProps) {
-    super(props);
-    this.state = {
-      isBeingDragged: false,
-      isGroupExpanded: false,
-      itemCardsStackHeight: 0,
+  const [isBeingDragged, setIsBeingDragged] = useState(false);
+  const [isGroupExpanded, setIsGroupExpanded] = useState(false);
+  const groupRef = useRef<HTMLDivElement>(null);
+
+  const toggleGroupExpand = useCallback(() => {
+    setIsGroupExpanded(prev => !prev);
+  }, []);
+
+  const setIsGroupBeingDragged = useCallback((dragging: boolean) => {
+    setIsBeingDragged(dragging);
+  }, []);
+
+  const handleGroupKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+        return;
+      }
+
+      if (e.key === " " && target.tagName !== "BUTTON") {
+        e.preventDefault();
+        toggleGroupExpand();
+      }
+    },
+    [toggleGroupExpand],
+  );
+
+  useEffect(() => {
+    const currentRef = groupRef.current!;
+    currentRef.addEventListener("keydown", handleGroupKeyDown);
+    return () => {
+      currentRef.removeEventListener("keydown", handleGroupKeyDown);
     };
-  }
+  }, [handleGroupKeyDown]);
 
-  private dragFeedbackItemOverFeedbackItemGroup = (e: React.DragEvent<HTMLDivElement>) => {
-    // Allow if the item being dragged is not from this group.
-    if (!this.state.isBeingDragged) {
-      e.preventDefault();
-    }
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "link";
-  }
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      if (!isBeingDragged) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "link";
+    },
+    [isBeingDragged],
+  );
 
-  private dropFeedbackItemOnFeedbackItemGroup = (e: React.DragEvent<HTMLDivElement>) => {
-    // Using localStorage as a temporary solution for Edge issue
-    // Bug 19016440: Edge drag and drop dataTransfer protocol is bugged
-    // const droppedItemId = e.dataTransfer.getData('id');
-    const droppedItemId = localStorageHelper.getIdValue();
-    FeedbackItemHelper.handleDropFeedbackItemOnFeedbackItem(this.props.mainFeedbackItem, droppedItemId, this.props.mainFeedbackItem.id);
-    e.stopPropagation();
-  }
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      // Using localStorage as a temporary solution for Edge issue
+      // Bug 19016440: Edge drag and drop dataTransfer protocol is bugged
+      const droppedItemId = e.dataTransfer?.getData("text/plain") || e.dataTransfer?.getData("text") || localStorageHelper.getIdValue();
+      FeedbackItemHelper.handleDropFeedbackItemOnFeedbackItem(mainFeedbackItem, droppedItemId, mainFeedbackItem.id);
+      e.stopPropagation();
+    },
+    [mainFeedbackItem],
+  );
 
-  private toggleGroupExpand = () => {
-    this.setState((previousState) => ({ isGroupExpanded: !previousState.isGroupExpanded }));
-  }
+  const groupTitle = mainFeedbackItem.title || "Untitled feedback";
 
-  private setIsGroupBeingDragged = (isBeingDragged: boolean) => {
-    this.setState({ isBeingDragged });
-  }
-
-  public render(): JSX.Element {
-    return (
-      <div
-        className={`feedback-item-group ${this.state.isGroupExpanded ? "feedback-item-group-expanded" : ""}`}
-        onDragOver={this.dragFeedbackItemOverFeedbackItemGroup}
-        onDrop={this.dropFeedbackItemOnFeedbackItemGroup}>
-        <div className="item-cards"
-          aria-label="Group Feedback Items">
+  return (
+    <div ref={groupRef} className={`feedback-item-group ${isGroupExpanded ? "feedback-item-group-expanded" : ""}`} onDragOver={handleDragOver} onDrop={handleDrop} onKeyDown={trackActivity} onMouseMove={trackActivity} onTouchStart={trackActivity} role="group" aria-label={`${groupTitle}. Feedback group with ${groupedWorkItems.length + 1} items${isGroupExpanded ? ", expanded" : ", collapsed"}`}>
+      <ul className="item-cards" aria-label="Group Feedback Items">
+        <li className="feedback-item-group-entry">
           <FeedbackItem
-            {...this.props.mainFeedbackItem}
+            {...mainFeedbackItem}
             groupedItemProps={{
-              groupedCount: this.props.groupedWorkItems.length,
-              isGroupExpanded: this.state.isGroupExpanded,
+              groupedCount: groupedWorkItems.length,
+              isGroupExpanded: isGroupExpanded,
               isMainItem: true,
               parentItemId: undefined,
-              setIsGroupBeingDragged: this.setIsGroupBeingDragged,
-              toggleGroupExpand: this.toggleGroupExpand
+              setIsGroupBeingDragged: setIsGroupBeingDragged,
+              toggleGroupExpand: toggleGroupExpand,
             }}
           />
-          {this.state.isGroupExpanded &&
-            this.props.groupedWorkItems.map((itemProps) =>
+        </li>
+        {isGroupExpanded &&
+          groupedWorkItems.map(itemProps => (
+            <li key={itemProps.id} className="feedback-item-group-entry">
               <FeedbackItem
-                key={itemProps.id}
                 {...itemProps}
                 groupedItemProps={{
                   groupedCount: undefined,
                   isGroupExpanded: undefined,
                   isMainItem: false,
-                  parentItemId: this.props.mainFeedbackItem.id,
-                  setIsGroupBeingDragged: this.setIsGroupBeingDragged,
-                  toggleGroupExpand: undefined
+                  parentItemId: mainFeedbackItem.id,
+                  setIsGroupBeingDragged: setIsGroupBeingDragged,
+                  toggleGroupExpand: undefined,
                 }}
               />
-            )
-          }
-          <div
-            className="item-cards-stack hide-mobile"
-            style={{ height: this.state.itemCardsStackHeight - 2, marginTop: 5 - this.state.itemCardsStackHeight }}
-          />
-        </div>
-      </div>
-    );
-  }
-}
+            </li>
+          ))}
+      </ul>
+    </div>
+  );
+};
 
-export default withAITracking(reactPlugin, FeedbackItemGroup);
+export default FeedbackItemGroup;

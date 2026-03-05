@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Check if the invoker is a member of the admin team
         run: |
@@ -50,24 +50,26 @@ jobs:
 
           if [ -z "${INPUT_VERSION}" ]; then
             ext_info=$(npx tfx extension show --no-prompt --json --publisher "ms-devlabs" --extensionId "team-retrospectives" --token ${{ secrets.AZURE_DEVOPS_TOKEN }})
-            VERSION=$(npx node-jq -r '.versions[0].version' <<< "$ext_info")
+            VERSION=$(jq -r '.versions[0].version' <<< "$ext_info")
           else
             VERSION="${INPUT_VERSION}"
           fi
 
-          cat <<< $(npx node-jq ".version = \"${VERSION}\"" vss-extension-prod.json) > vss-extension-prod.json
+          tmp_versioned=$(mktemp)
+          jq ".version = \"${VERSION}\"" vss-extension-prod.json > "$tmp_versioned"
+          mv "$tmp_versioned" vss-extension-prod.json
 
           npm run pack:p
 
           npx tfx extension publish --manifests vss-extension-prod.json --vsix ./dist/*.vsix --token "${{ secrets.AZURE_DEVOPS_TOKEN }}"
 
           ext_info=$(npx tfx extension show --no-prompt --json --publisher "ms-devlabs" --extensionId "team-retrospectives" --token ${{ secrets.AZURE_DEVOPS_TOKEN }})
-          VERSION=$(npx node-jq -r '.versions[0].version' <<< "$ext_info")
+          VERSION=$(jq -r '.versions[0].version' <<< "$ext_info")
 
           echo "EXTENSION_VERSION=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create the tag for the extension release
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           github-token: ${{ secrets.GH_CLI_LOGIN_TOKEN }}
           script: |

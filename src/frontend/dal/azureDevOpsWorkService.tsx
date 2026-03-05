@@ -1,42 +1,37 @@
-import { TeamFieldValues, TeamSettingsIteration } from 'azure-devops-extension-api/Work';
-import { WorkRestClient } from 'azure-devops-extension-api/Work/WorkClient';
-import { getClient } from 'azure-devops-extension-api/Common';
+import { TeamFieldValues, TeamSettingsIteration } from "azure-devops-extension-api/Work";
+import { WorkRestClient } from "azure-devops-extension-api/Work/WorkClient";
+import { getClient } from "azure-devops-extension-api/Common";
 
-import { getProjectId } from '../utilities/servicesHelper';
-import { appInsights, TelemetryExceptions } from '../utilities/telemetryClient';
+import { getProjectId } from "../utilities/servicesHelper";
+import { appInsights, TelemetryExceptions } from "../utilities/telemetryClient";
+import { isAzureDevOpsError, AzureDevOpsErrorTypes } from "../interfaces/azureDevOpsError";
 
 class WorkService {
   private _httpWorkClient: WorkRestClient;
 
   constructor() {
-    if (!this._httpWorkClient) {
-      this._httpWorkClient = getClient(WorkRestClient);
-    }
+    this._httpWorkClient = getClient(WorkRestClient);
   }
 
   /**
    * Gets the iterations for the current project and a given team
    */
-  public async getIterations(teamId: string, timeframe?: string):
-    Promise<TeamSettingsIteration[]> {
+  public async getIterations(teamId: string, timeframe?: string): Promise<TeamSettingsIteration[]> {
     const projectId = await getProjectId();
     const teamContext = {
-      project: '',
+      project: "",
       projectId,
-      team: '',
-      teamId
+      team: "",
+      teamId,
     };
 
     let teamIterations: TeamSettingsIteration[] = [];
 
     try {
       teamIterations = await this._httpWorkClient.getTeamIterations(teamContext, timeframe);
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    catch (e: any) {
-      console.error(e);
-      appInsights.trackException(e);
-      if (e.serverError?.typeKey === 'CurrentIterationDoesNotExistException') {
+    } catch (e: unknown) {
+      appInsights.trackException({ exception: e instanceof Error ? e : new Error(String(e)), properties: { teamId } });
+      if (isAzureDevOpsError(e) && e.serverError?.typeKey === AzureDevOpsErrorTypes.CurrentIterationDoesNotExist) {
         appInsights.trackTrace({ message: TelemetryExceptions.CurrentTeamIterationNotFound, properties: { teamId, e } });
       }
     }
@@ -47,24 +42,21 @@ class WorkService {
   /**
    * Gets the team field values (default being area paths) for project and team
    */
-  public async getTeamFieldValues(teamId: string):
-    Promise<TeamFieldValues> {
+  public async getTeamFieldValues(teamId: string): Promise<TeamFieldValues> {
     const projectId = await getProjectId();
     const teamContext = {
-      project: '',
+      project: "",
       projectId,
-      team: '',
-      teamId
+      team: "",
+      teamId,
     };
 
     let teamFieldValues: TeamFieldValues = undefined;
 
     try {
       teamFieldValues = await this._httpWorkClient.getTeamFieldValues(teamContext);
-    }
-    catch (e) {
-      appInsights.trackException(e);
-      console.error('An exception occurred while trying to get the team field values: ', e);
+    } catch (e) {
+      appInsights.trackException(e, { teamId });
     }
 
     return teamFieldValues;

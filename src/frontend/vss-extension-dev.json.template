@@ -74,15 +74,7 @@
       "addressable": true
     },
     {
-      "path": "css/bundle.css",
-      "addressable": true
-    },
-    {
       "path": "dist/reflect-bundle.js",
-      "addressable": true
-    },
-    {
-      "path": "node_modules/applicationinsights-js/dist",
       "addressable": true
     },
     {

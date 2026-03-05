@@ -1,19 +1,5 @@
 # Retrospective Extension for Azure DevOps
 
-> ## TL;DR
->
-> _We're looking for contributors!_
->
-> _We’ll continue maintaining the Retrospective Extension, but with limited time for new features, we need help to make it even better. Join us if you’re interested! 🙌_
->
-> ## Summary Announcement
->
-> Hi everyone!
->
-> Maintaining the `Retrospective Extension for Azure DevOps` has been a passion project we’ve worked on in our personal time. While we’ll continue to handle security updates and occasional feature improvements when we can, our available time has become more limited. To take this project to the next level, we’d love to invite contributors to join and help make it even better for the community.
->
-> If you're interested in contributing, please check out the repo and the [Contributing Guideline](./CONTRIBUTING.md)! Together, we can ensure the project thrives. 🚀
-
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/microsoft/vsts-extension-retrospectives/badge)](https://scorecard.dev/viewer/?uri=github.com/microsoft/vsts-extension-retrospectives)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9514/badge)](https://www.bestpractices.dev/projects/9514)
 [![CodeCov](https://codecov.io/gh/microsoft/vsts-extension-retrospectives/branch/main/graph/badge.svg?token=XU0895TPB4)](https://codecov.io/gh/microsoft/vsts-extension-retrospectives)
@@ -24,7 +10,7 @@ Retrospectives is an [Azure DevOps](https://dev.azure.com) extension to perform 
 
 Retrospectives are an important practice in becoming an effective team, allowing the team to gather feedback and continuously improve based on the feedback.
 
-Research from the [2018 State of DevOps report](https://services.google.com/fh/files/misc/state-of-devops-2018.pdf) indicates that Elite teams are 1.5 times more likely to consistently hold retrospectives and use them to improve their work. Furthermore, a [2013 meta-analysis on teams](https://journals.sagepub.com/doi/full/10.1177/0018720812448394) indicates that teams that effectively debrief/conduct retrospectives are 20-25% more effective.
+Research from the [2018 State of DevOps report](https://services.google.com/fh/files/misc/state-of-devops-2018.pdf) indicates that elite teams are 1.5 times more likely to consistently hold retrospectives and use them to improve their work. Furthermore, a [2013 meta-analysis on teams](https://journals.sagepub.com/doi/full/10.1177/0018720812448394) indicates that teams that effectively debrief/conduct retrospectives are 20-25% more effective.
 
 Teams often use external retrospective tools, white boards with Post-its, OneNote, etc. to conduct retrospectives. The data then needs to be collated, and any actionable items need to be created in your Azure DevOps pipeline.
 
@@ -36,6 +22,7 @@ The [Retrospectives extension](https://marketplace.visualstudio.com/items?itemNa
   - [Retrospective Features](#retrospective-features)
   - [Install](#install)
   - [Use](#use)
+  - [Live Sync Troubleshooting](#live-sync-troubleshooting)
   - [Best Practices](#best-practices)
   - [Contribute](#contribute)
   - [License](#license)
@@ -61,65 +48,72 @@ Navigate to the Azure 'Boards' tab in your account on the left hand navigation. 
 
 ![A screenshot of the Azure DevOps left-hand navigation. Under the Boards heading, the extension for the retrospective is darkened as though hovered by a mouse.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/azdo-side-bar.png)
 
-### 2. Pick The Team
+### 2. Pick the Team
 
-You are now on the Retrospectives page. Select your Azure DevOps team from the selector in the header.
+You are now on the Retrospectives page. Select your Azure DevOps team from the dropdown in the header. You will only be able to select from My Teams.
 
-![A screenshot of the Retrospective tool's Team dropdown. The selected team is "Backend Team" and the selection is darkened as though the mouse is hovering over.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/team-dropdown.png)
+Retrospectives should be a safe space for team members to share feedback. Therefore, you should not have access to other teams' retrospective boards. All Teams would provide access to see feedback from any team in the project.
+
+If you need to access another team's retrospective board in the project, you will need to be added as a member of that team.
+
+![Screenshot of the Retrospective tool's Team dropdown. In the example the user belongs to only one team, the "Backend Team". The selected team is darkened as though the mouse is hovering over the selection.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/team-dropdown-My-Teams.png)
 
 ### 3. Create New Retrospective
 
 Create a new retrospective using the 'Create Board' button. If this is your first retrospective for your selected team, then press the "Create Board" button in the center of the screen.
 
-![Video](https://user-images.githubusercontent.com/118744/208821363-cde5b0e1-e747-4158-8d8b-99017b4c3cc4.mp4)
+[▶ Watch video](https://user-images.githubusercontent.com/118744/208821363-cde5b0e1-e747-4158-8d8b-99017b4c3cc4.mp4)
 
 ![A screenshot of the Retrospective main page. The screen is mostly empty except for the top navigation of the tool. In the center there is a blue button to 'Create Board.'](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/create-first-retrospective.png)
 
 If you have created a retrospective before for your selected team, then you can select "Create a new retrospective" from the navigation drop down.
 
-![A screenshot of the top navigation in the Retrospective tool, where the 'Board Actions' menu has been opened. The first option in the dropdown is the 'Create New Retrospective.'](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/create-new-retrospective-dropdown.png)
+![A screenshot of the top navigation in the Retrospective tool, where the 'Board Actions' menu has been opened. The first option in the dropdown is the 'Create new retrospective.'](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/menu-dropdown-create-new-retrospective.png)
 
 ### 4. Choose Your Retrospective Settings
 
-When you select **New Board** or **Create new retrospective** as above, you will see the following dialog:
+When you select **Create Board** or **Create new retrospective** as above, you will see the following dialog:
 
-![A screenshot showing the modal box that controls the initial settings for creating a retrospective board. The settings include: a text field for title of the retrospective; a number input box for maximum votes per person; a checkbox to include a Team Assessment; a checkbox to obscure the feedback of others during the Collect Phase; a checkbox to include Retrospective Prime Directive; and a section to pick the different columns to include in the retrospective, either customized or loaded from predefined templates.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/create-new-retro-lightmode.png)
+![A screenshot showing the modal box that controls the initial settings for creating a retrospective board. The settings include: a text field for title of the retrospective; a number input box for maximum votes per person; a checkbox to include a Team Assessment; a checkbox to obscure the feedback of others during the Collect Phase; a checkbox to include Retrospective Prime Directive; and a section to pick the different columns to include in the retrospective, either customized or loaded from predefined templates.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/create-new-retrospective.png)
 
 Please enter the appropriate information:
 
 - **Retrospective Title**: Title for the Retrospective.
-- **Max Votes per User**: The maximum number of votes a participant has to use in the "Vote" Phase.
+- **Max Votes per User**: The maximum number of votes a participant has to use in the "Vote" phase.
 - **Include Team Assessment**: Include a Team Assessment link at the top of the board.
 - **Obscure the feedback of others until after Collect phase**: When selected, users cannot see other users input until they have moved to another phase. Other users' feedback will be blurred.
-- **Display 'Retrospective Prime Directive'**: Include a link to the 'Prime Directive' at the top of the board.
 - **Do not display names in feedback**: When checked, anonymize who creates individual feedback items.
-- **Columns Settings**: You can either Apply from a pre-populated template or individually select and configure columns yourself.
+- **Columns Settings**: You can either apply from a pre-populated template or individually select and configure columns yourself.
 
-![A screenshot showing the dropdown of available templates for the retrospective board. They represent the different columns that can be included.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/pick-retrospective-template-lightmode.png)
+![A screenshot showing the dropdown of available templates for the retrospective board. They represent the different columns that can be included.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/select-a-template.png)
 
-**Note:** Retrospective Title is the minimum 'required' information (other fields can stay at default as needed). Once the title is provided, the `Save` button is enabled. Save the retrospective using the `Save` button.
+**Notes:**
 
-### ... Or Select Another Retrospective Board
+- Retrospective Title is the minimum 'required' information (other fields can stay at default as needed). Once the title is provided, the `Save` button is enabled. Save the retrospective using the `Save` button.
+- The system will remember your selection for maximum votes, team assessment, obscure feedback, and do not display names when saving and use those setting as your defaults for the next a board you create.
+- The **Permission** tab allows the board owner or team admin to restrict access to the retrospective board by team or by individual. By default the retrospective board is accessible to everyone in the project.
+
+### 5. Select An Existing Retrospective Board
 
 Once you have created the retrospective board and you want to select a retrospective board different from the currently displayed board, click on the retrospective board name and select the desired one. You can use the search box to find the appropriate retrospective boards if you have a large number of boards.
 
 ![A screenshot showing the dropdown for searching available retrospective boards after they've been created. The current Retrospective Board is "Retrospective for Sprint 8" and the selection for "Retrospective for Sprint 7" is darkened as though hovered.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/retro-board-dropdown.png)
 
-### 5. Share the Link to the Retrospective
+### 6. Share the Link to the Retrospective
 
 Once you create a new retrospective, you can share a link to it to all participants. Users can then access that link even from their mobile browsers to participate in the retrospective. The extension offers real time synchronization, so all users will see the most up-to-date information without having to refresh the page.
 
-![A screenshot of the dropdown from the Board Actions Menu. The option for 'Copy Retrospective Link' is darkened as though the mouse is hovering over it](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/copy-retro-link.png)
+![A screenshot of the dropdown from the Board Actions Menu. The option for 'Copy retrospective link' is highlighted as the fourth menu option.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/menu-dropdown-copy-retrospective-link.png)
 
-### 6. Phases of the Standard Retrospective
+### 7. Phases of the Standard Retrospective
 
 The number of columns in each retrospective is determined by the selection made when making the new board. Regardless of the template, they still follow the same sequence of phases.
 
 #### The Prime Directive
 
-If you had selected the 'Display 'Retrospective Prime Directive', you will see the option to view that directive which sets the stage for the retrospective. It is recommended that you click on the Prime Directive and read it out loud for everyone to hear. Remind everyone that any issues discovered will be assumed to be process problems, not people problems.
+Begin by reminding participants that the retrospective is a safe space and that the issues raised are meant to address process problems, not people problems. Optionally, display the 'Retrospective Prime Directive' by clicking the Directive icon in the upper-right Retrospectives Extension menu. Read the Prime Directive aloud for everyone to hear, and allow space for participants to voice any concerns.
 
-![A screenshot of the prime directive](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/prime-directive-lightmode.png)
+![A screenshot of the prime directive](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/the-prime-directive.png)
 
 #### Collect
 
@@ -137,7 +131,7 @@ Once feedback from all users is collected, move on to the next phase of **Group*
 
 #### Group
 
-In this phase, any similar feedback can be grouped together beneath a "header" or champion item. If you feel 2 feedback items are similar, drag one onto another to group them together. Dragging any item onto a group, will add items to that group.
+In this phase, any similar feedback can be grouped together beneath a "header" or champion item. If you feel two feedback items are similar, drag one onto another to group them together. Dragging any item onto a group, will add items to that group.
 
 ![A screenshot that shows a piece of feedback being dragged on top of another due to their similarity. The item being dragged is semi-transparent.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/group-feedback-by-dragging.png)
 
@@ -171,12 +165,12 @@ This will open up the standard Azure DevOps work item creation form. Enter the w
 
 ![A screenshot that shows a feedback item in the 'Act Phase'. On the example feedback items, the button for 'Add Action Item,' an ellipsis, has been pressed to reveal a selection of options. The user has the option to create a number of different Azure Dev Ops items, like adding a bug, a user story, and others. In this case, the item that is darkened as though hovered by a mouse is the 'User Story' option.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/add-action-item-dropdown.png)
 
-### 7. Optional: The Team Assessment
+### 8. Optional: The Team Assessment
 
 You can optionally include a "Team Assessment" that anonymously collects feedback from participants.
 To get the feedback form, you can click on the "Team Assessment" link at the top of the board.
 
-![A screenshot of where you see the link to "Team Assessment"](https://user-images.githubusercontent.com/114175122/216712371-7fd79231-99a2-43cf-90f8-145c4c71bb81.png)
+![A screenshot of where you see the link to "Team Assessment"](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/team-assessment.png)
 
 The assessment tracks 6 categories:
 
@@ -206,37 +200,32 @@ improvement.
 - Through a Team Assessment Retrospective
   - A Team Assessment Retrospective is a new approach to retrospectives allowing teams to identify
   the largest opportunities for improvement based on each team members' responses to the team assessment.
-  - Section 7.1 below outlines the Six Steps in a Team Assessment Retrospective
 
-### 7.1 The Six Steps To a Team Assessment Retrospective
+### The Six Steps to a Team Assessment Retrospective
 
 #### Setup
 
 Create a new retrospective using the steps above with the following exceptions:
 
 - 'Include Team Assessment' is checked
-- 'Display 'Retrospective Prime Directive'' is checked
 - 'Do not display names in feedback' is checked
 - Note: You do not need to select a template. The template will be modified after the assessment is complete
 - Share the link to the retrospective with the team
 
-![A screenshot of the new retrospective box](https://user-images.githubusercontent.com/114175122/205405481-2f02f772-7d5a-4be5-bc9d-f9a712062565.png)
+![A screenshot of the new retrospective box](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/create-new-retro-with-team-assessment-and-anonymous.png)
 
-#### The Prime Directive
+#### Safe Space
 
-In this phase the facilitator sets the stage for the retrospective. It is recommended that you click
-on the Prime Directive and read it out loud for everyone to hear. Remind everyone that any issues that
-discovered will be assumed to be process problems, not people problems.
+In this phase, the facilitator sets the stage for the retrospective. Remind everyone that any issues raised will be viewed as process problems, not people problems. Optionally, click the Directive icon and read the Prime Directive aloud to reinforce that the retrospective is a safe space for the team to improve together.
 
-![A screenshot of the prime directive](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/prime-directive-lightmode.png)
+![A screenshot of the prime directive](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/prime-directive-zoom.png)
 
 #### Team Assessment
 
 In this phase each team member clicks on the Team Assessment and anonymously answers all questions
 and hits "submit". It is critical that you remind everyone that all feedback is anonymous and confidential.
 
-Throughout this phase you will periodically check the retrospective summary.
-![Image of how to check the retrospective summary](https://user-images.githubusercontent.com/114175122/205405705-105ec68b-412e-465a-b192-6b3231688383.png)
+Throughout this phase you will periodically check the retrospective summary (illustrated in then next section).
 
 If the majority of the team hasn't responded to the assessment, close the summary dialog and encourage
 everyone to participate, reminding them that if their voice isn't expressed in the assessment it can't
@@ -259,13 +248,13 @@ with a template that aligns to the dimension.
 In this phase team members will provide feedback to help improve the dimension they've chosen to focus
 on. Ask team members to input feedback cards on the left 2 columns.
 
-![A screenshot of the Efficiency Retrospective Board Template](https://user-images.githubusercontent.com/114175122/203426762-9fc09511-377d-4368-9a9a-a547e22bbdf5.png)
+![A screenshot of the Efficiency Retrospective Board Template](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/team-assessment-discuss-and-act-efficiency.png)
 
-After a few moments, the facilitator reads the cards outloud. When it's apparent that no additional
+After a few moments, the facilitator reads the cards out loud. When it's apparent that no additional
 feedback cards are being added, the facilitator asks the following question: "Reflecting on the
 feedback we've collected, if you could take only one action in the next sprint that would yield the
 biggest improvement on [dimension team is focused on improving from Team Assessment] what would it be?
-Capture this in a feedback card in the third column (One action in the next sprint)"
+Capture this in a feedback card in the third column for one action to try next sprint."
 
 #### Group
 
@@ -285,15 +274,13 @@ least voted upon.
 
 #### Act
 
-Follow the steps above to assign actions as work items in Azure DevOps. Note: We recommend only selecting
- 1-2 actions per sprint to ensure completion prior to the next sprint.
+Follow the steps above to assign actions as work items in Azure DevOps. Note: We recommend only selecting 1-2 actions per sprint to ensure completion prior to the next sprint.
 
-### 8. Retrospective Summary
+### 9. Retrospective Summary
 
- The Retrospective Summary dialog is accessible from the "Board Actions" menu in the top navigation.
+The Retrospective Summary dialog is accessible from the "Board Actions" menu in the top navigation.
 
-![A screenshot that shows the Board Actions menu, where the "Show Retrospective
-Summary" is highlighted as though the mouse is hovering.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/show-retro-summary.png)
+![A screenshot that shows the Board Actions menu, where the "Show retrospective summary" is highlighted as the seventh menu option.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/menu-dropdown-show-retrospective-summary.png)
 
 Once there, there is a summary of the Retrospective. This includes:
 
@@ -306,28 +293,51 @@ Once there, there is a summary of the Retrospective. This includes:
 
 ![A screenshot that shows an example retrospective summary without a team assessment.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/retro-summary-no-assessment-darkmode.png)
 
-If there is a team assessment, then a charted summary will show the vote breakdown by favorability,
-along with an average score.
+If there is a team assessment, then a charted summary will show the vote breakdown by favorability, along with an average score.
 
 ### 10. Board History
 
-There may be times that a team may want to reflect on past retrospectives they have
-run. There is a History tab in the top navigation of the tool, next to "Board" header.
+The **History** tab appears in the top-left navigation header, next to the **Board** tab. This view lists past retrospectives, showing the count of feedback items and action items, and supports archiving or restoring archived retrospectives, as well as permanently deleting archived retrospectives.
 
-![A screenshot that shows the history view tab. There is a table that shows four
-columns: Retrospective Name, Created Date, Pending Work Items, and Total Work Items.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/history-view-darkmode.png)
+![History tab showing table with 7 columns and 5 rows. Columns include: Retrospective Name, Created Date, Archived, Archived Date, Feedback Items, Total Work Items, and Trash icon. Rows include: 4th Retrospective, 3rd Retrospective, Lean Coffee (archived with delete option active), 2nd Retrospective, and 1st Retrospective.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/history-view-with-archive-and-delete.png)
 
-From here, one can look at past retrospectives and see a few high level stats and
-the action items created after each by clicking the individual retrospective.
+Selecting a retrospective expands the row to reveal more details, including a count of action items by status and a detailed list of each action item.
 
-![A screenshot that shows an expanded retrospective. On the left-hand side, there is the summary: how many feedback items were created, how many work items created, how many work items pending, and how many work items resolved. On the right-hand side, there is the list of work items in a table of their own. The work item table has the columns: Title, State, Type, Last Updated, Assigned To, and Priority. The work items have example data for three different items.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/history-view-expanded-summary-lightmode.png)
+![Expanded retrospective view showing a summary of feedback and work item counts on the left and a work item table on the right with columns: Title, State, Type, Last Updated, Assigned To, and Priority.](https://github.com/microsoft/vsts-extension-retrospectives/raw/main/documentation/images/desktop/history-row-expanded.png)
+
+To _archive_ a retrospective, check the box in the Archived column. The retrospective will no longer appear in the Board selection dropdown, though all data remains preserved Archiving will take effect immediately for the user performing the action, while other users will see the change only after reloading the Retrospective boards.
+
+To _restore_ an archived retrospective, uncheck the box in the Archived column. The retrospective will reappear in the Board selection dropdown. Restoring will take effect immediately for the user performing the action, while other users will see the change only after reloading the Retrospective boards.
+
+To _delete_ an archived retrospective, wait for two minutes after archiving, then click the trash icon to _permanently_ delete the retrospective.  The delay between archiving and deleting was added to encourage users to try the archive functionality before deleting, since the delete action cannot be undone and, in most cases, archiving will be sufficient.  Deleting will take effect immediately for all users.
+
+## Live Sync Troubleshooting
+
+If you see the in-app message that live syncing is unavailable, the board still works, but updates from other users may not appear until the connection is restored.
+
+### Quick checks
+
+- Select **Retry** in the warning banner and wait for reconnection.
+- Refresh the browser tab if the warning persists.
+- Verify system clock/timezone are accurate on the client machine (token validation depends on local time).
+
+### Network / proxy checks (including enterprise ZTNA, ZScaler, etc.)
+
+Live sync uses a SignalR connection to the backend service URL `https://app-retrospective-extension-prod.azurewebsites.net`.
+
+- Ensure outbound HTTPS/WebSocket traffic to that hostname is allowed by your firewall/proxy.
+- If your organization uses network security tooling (for example, SSL interception, private access, or zero-trust gateways), add an allow rule for the collaboration service hostname.
+- Confirm that proxy policy permits long-lived connections (WebSocket or SignalR fallback transports).
+
+### On-premise note
+
+For Azure DevOps Server/on-prem deployments, behavior depends on your environment and backend setup. If live sync does not connect reliably, use page refresh as a fallback while validating proxy/allowlist configuration for your collaboration service endpoint.
 
 ## Best Practices
 
 ### Plan for a Team Assessment Retrospective
 
-Planning in advance will help you make the best use of the team's time in completing a Team Assessment
-Retrospective.
+Planning in advance will help you make the best use of the team's time in completing a Team Assessment Retrospective.
 
 #### In Advance of the Event
 
@@ -347,7 +357,7 @@ Retrospective.
 | Determine action plan(s) | 10 min | [Collect, Review, Group and Vote on Column 3](https://github.com/microsoft/vsts-extension-retrospectives/blob/main/README.md#act) |
 | Close the meeting | 2 min | Thank attendees for participation and summarize |
 
-### Use Retrospectives to give Kudos
+### Use Retrospectives to Give Kudos
 
 Giving kudos, or recognizing others for their achievements, is one of the highest drivers of employee
 satisfaction and retention. When people feel appreciated and supported, they will be more engaged and
@@ -357,7 +367,7 @@ and it just takes a moment for people to add a few pieces of feedback to acknowl
 of others.  When you finish your retrospective, make sure to read through each kudos feedback item
 and take a moment to celebrate!
 
-### Use Retrospectives to create a Team Working Agreement
+### Use Retrospectives to Create a Team Working Agreement
 
 Team Working Agreements are shared commitments to ways of working together. They establish team members'
 work preferences. A shared agreement will balance individual and team needs, and set clear expectations
@@ -396,7 +406,7 @@ biggest opportunity with actions identified should be a part of that process.
 
 - Best practices for improving **clarity** include creation of and alignment to OKRs. Regular review
 of OKRs with stakeholders combined with the implementation of agile development methodologies to continually
-prioritize the work that will have the biggest impact on achieving the OKRs. A well groomed backlog
+prioritize the work that will have the biggest impact on achieving the OKRs. A well maintained backlog
 that is visible to the entire team and reviewed regularly will ensure clarity. The backlog should be
 stack ranked in order of priority with minimum work in process will ensure team clarity on the work
 that matters the most. Drive continuous improvement in clarity by using the “Clarity” Retrospective
@@ -418,19 +428,19 @@ different and, in most cases, simple changes can make a profound impact, but it 
 and taking action to improve.  Drive continuous improvement in psychological safety by using the
 “Psychological Safety” Retrospective Board template, following the standard retrospective process.
 - Best practices for improving **work-life balance** include the implementation of fundamental agile
-practices including backlog grooming and prioritization, limiting Work In Process by establishing WIP
+practices including backlog refinement and prioritization, limiting Work In Process by establishing WIP
 limits and adhering to them, and only committing to deliver at the same velocity as the data indicates
 the team has predictably delivered in the past. Finally, simply asking the question in the Team Effectiveness
 survey and conducting deep dive discussions to identify drivers combined with follow-through on the
 associated actions should result in increased sustainability for the team. Drive continuous improvement
 in work-life balance by using the “Work-Life Balance” Retrospective Board template, following the
 standard retrospective process.
-- Best practices for improving **Confidence** include sharing Objectives and Key Results (OKRs) from
+- Best practices for improving **confidence** include sharing Objectives and Key Results (OKRs) from
 different levels across your organization. Bringing transparency into the OKRs can help teams and
 individuals better understand how their work aligns to the organizations' priorities and can build
 confidence in doing the right work to deliver against those OKRs.
-- Best practices for improving **Efficiency** can also include the implementation of agile practices
-including backlog grooming and prioritization. Limiting Work In Process by establishing WIP limits
+- Best practices for improving **efficiency** can also include the implementation of agile practices
+including backlog refinement and prioritization. Limiting Work In Process by establishing WIP limits
 and adhering to them enables teams to be more efficient so they can "stop starting and start finishing"!
 
 ## Contribute

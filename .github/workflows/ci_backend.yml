@@ -17,12 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         name: Check out repository
+
+      - uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
+        with:
+          dotnet-version: '9.0.203'
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: changes
@@ -33,26 +37,22 @@ jobs:
               - 'src/backend.tests/**'
 
       - if: steps.changes.outputs.src == 'true'
-        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
-        with:
-          dotnet-version: '6.0.x'
-
-      - if: steps.changes.outputs.src == 'true'
         run: |
-          dotnet restore
+          dotnet restore --locked-mode
           dotnet build
         name: Build
         working-directory: 'src/backend'
 
       - if: steps.changes.outputs.src == 'true'
         run: |
+          dotnet restore --locked-mode
           dotnet test --logger "trx;LogFileName=test-results.trx"
         name: Test
         working-directory: 'src/backend.tests'
 
       - if: success() || failure()
         name: Upload backend test report
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: dotnet-test-results
           path: src/backend.tests/TestResults/test-results.trx

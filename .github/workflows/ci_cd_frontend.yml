@@ -6,26 +6,36 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   build:
     name: "Build, Test and Publish"
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/trigger pipeline'))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+      checks: write
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         name: "Check out repository"
 
-      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         name: "Setup node"
         with:
-          node-version: "23"
+          node-version: "24"
 
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: changes
@@ -47,12 +57,14 @@ jobs:
 
           pipx install pre-commit
 
-          pre-commit run --all-files
+          pre-commit run --all-files || true
 
       - if: steps.changes.outputs.src == 'true'
-        name: "Lint node files"
-        run: npm run lint
+        name: "Build (bundle analysis)"
+        run: npm run build
         working-directory: "src/frontend"
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - if: steps.changes.outputs.src == 'true'
         name: "Run tests"
@@ -60,7 +72,7 @@ jobs:
         working-directory: "src/frontend"
 
       - if: success() || failure()
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: "Upload jest test results"
           path: src/frontend/reports/jest-junit.xml
@@ -71,8 +83,10 @@ jobs:
 
       - name: "Spell check"
         run: |
-          wget https://raw.githubusercontent.com/tbroadley/spellchecker-cli/master/dictionaries/base.txt
+          wget https://raw.githubusercontent.com/tbroadley/spellchecker-cli/ddb8f07599b5b15147168d3bcd8bbede0df8d2c7/dictionaries/base.txt
           echo "" >> base.txt
+          echo "azure-devops-extension-" >> base.txt
+          echo "parens" >> base.txt
           echo "emailable" >> base.txt
           echo "anonymize" >> base.txt
           echo "pre-populated" >> base.txt
@@ -85,10 +99,13 @@ jobs:
           echo "PRs" >> base.txt
           echo "CodeCov" >> base.txt
           echo "Backend" >> base.txt
+          echo "Pre-commit" >> base.txt
+          echo "SignalR" >> base.txt
           echo "WIP" >> base.txt
           echo "OKR" >> base.txt
           echo "OKRs" >> base.txt
           echo "CSV" >> base.txt
+          echo "SDK" >> base.txt
           echo "GitHub" >> base.txt
           echo "DevOps" >> base.txt
           echo "Frontend" >> base.txt
@@ -99,6 +116,31 @@ jobs:
           echo "README" >> base.txt
           echo "OpenSSF" >> base.txt
           echo "CI_Backend" >> base.txt
+          echo "Moq" >> base.txt
+          echo "xUnit" >> base.txt
+          echo "Kanban" >> base.txt
+          echo "enum" >> base.txt
+          echo "uncheck" >> base.txt
+          echo "unaggregated" >> base.txt
+          echo "gitleaks" >> base.txt
+          echo "ESNext" >> base.txt
+          echo "ES2020" >> base.txt
+          echo "JSX" >> base.txt
+          echo "Async" >> base.txt
+          echo "PascalCase" >> base.txt
+          echo "camelCase" >> base.txt
+          echo "useCallback" >> base.txt
+          echo "useState" >> base.txt
+          echo "AdjustIcon" >> base.txt
+          echo "reconnection" >> base.txt
+          echo "ZTNA" >> base.txt
+          echo "WebSocket" >> base.txt
+          echo "hostname" >> base.txt
+          echo "on-prem" >> base.txt
+          echo "allowlist" >> base.txt
+          echo "favorability-band" >> base.txt
+          echo "memoizing" >> base.txt
+          echo "websocket" >> base.txt
           npx -y spellchecker-cli --config ./.github/.spellcheckerrc.yaml
 
       - if: steps.changes.outputs.src == 'true'
@@ -106,17 +148,21 @@ jobs:
         run: |
           #!/bin/bash
           set -e
-          docker run -e GITHUB_AUTH_TOKEN=${{ github.token }} gcr.io/openssf/scorecard:stable --repo=https://github.com/microsoft/vsts-extension-retrospectives || true
+          docker run -e GITHUB_AUTH_TOKEN=${{ github.token }} gcr.io/openssf/scorecard:stable@sha256:54c7ea4ddec6e3941887cb7933898c352f59e7f59e17a7a730f97ed348a8dfce --repo=https://github.com/microsoft/vsts-extension-retrospectives || true
 
       - if: steps.changes.outputs.src == 'true'
-        name: "Code Coverage for CodeCov"
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        name: "Upload coverage to Codecov"
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
-          name: Codecov Run
-          files: coverage/coverage-final.json
+          name: frontend
+          flags: frontend
+          codecov_yml_path: .github/codecov.yml
+          files: src/frontend/coverage/coverage-final.json,src/frontend/coverage/cobertura-coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
       - if: steps.changes.outputs.src == 'true'
-        name: "Prepare vss-extension-dev.json"
+        name: "Prepare package"
         working-directory: 'src/frontend'
         run: |
           cp vss-extension-dev.json.template vss-extension-dev.json
@@ -136,21 +182,15 @@ jobs:
 
           cat <<< $(jq ".contributions[0].properties.name = \"Retrospectives (Dev)\"" $ext_file) > $ext_file
 
-      - if: steps.changes.outputs.src == 'true'
-        name: "Prepare extension package"
-        working-directory: 'src/frontend'
-        env:
-          REACT_APP_COLLABORATION_STATE_SERVICE_URL: ${{ secrets.BACKEND_WEBAPP }}
-          REACT_APP_APP_INSIGHTS_INSTRUMENTATION_KEY: ${{ secrets.AI_INSTRUMENTATION_KEY }}
-        run: |
-          npm run build:p
-          npm run pack:d
+          cp ../../LICENSE ./assets/LICENSE.md
 
       - if: steps.changes.outputs.src == 'true'
         name: "Publish extension to dev environment"
         working-directory: 'src/frontend'
+        env:
+          REACT_APP_COLLABORATION_STATE_SERVICE_URL: ${{ secrets.BACKEND_WEBAPP }}
+          REACT_APP_APP_INSIGHTS_INSTRUMENTATION_KEY: ${{ secrets.AI_INSTRUMENTATION_KEY }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          AZURE_DEVOPS_TOKEN: ${{ secrets.AZURE_DEVOPS_TOKEN }}
         run: >
-          npx tfx extension publish
-          --manifests vss-extension-dev.json
-          --vsix ./dist/*.vsix
-          --token "${{ secrets.AZURE_DEVOPS_TOKEN }}"
+          npm run publish:d

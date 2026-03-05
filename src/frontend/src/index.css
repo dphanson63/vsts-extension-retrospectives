@@ -1,0 +1,2245 @@
+@import "tailwindcss";
+
+@source "./src/**/*.{js,jsx,ts,tsx}";
+@source "./components/**/*.{js,jsx,ts,tsx}";
+
+@theme {
+  --breakpoint-lg: 1200px;
+
+  --color-primary: #0078d4;
+  --color-border-gray: #605e5c;
+  --color-border-gray-lighter: color-mix(in srgb, var(--color-border-gray), white 10%);
+  --color-border-gray-darker: color-mix(in srgb, var(--color-border-gray), black 10%);
+  --color-error: #cc293d;
+  --color-error-lighter: color-mix(in srgb, var(--color-error), white 10%);
+  --color-error-darker: color-mix(in srgb, var(--color-error), black 10%);
+  --color-success: #339933;
+  --color-success-lighter: color-mix(in srgb, var(--color-success), white 10%);
+  --color-success-darker: color-mix(in srgb, var(--color-success), black 10%);
+  --color-task-yellow: #f2cb1d;
+  --color-task-yellow-lighter: color-mix(in srgb, var(--color-task-yellow), white 10%);
+  --color-task-yellow-darker: color-mix(in srgb, var(--color-task-yellow), black 10%);
+  --color-gray-light: #f4f4f4;
+  --color-gray-medium: #dadada;
+}
+
+@keyframes fadeInFromGreen {
+  from {
+    opacity: 0;
+    background-color: var(--color-success-darker);
+  }
+  50% {
+    background-color: var(--color-success-lighter);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutToRed {
+  from {
+    opacity: 1;
+  }
+  50% {
+    background-color: var(--color-error-lighter);
+  }
+  to {
+    opacity: 0;
+    background-color: var(--color-error-darker);
+    visibility: hidden;
+  }
+}
+
+@keyframes push {
+  33% {
+    transform: scale(0.8);
+  }
+  66% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes retro-toast-progress-shrink {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+body {
+  @apply overflow-hidden;
+}
+
+.work-item-task-color {
+  @apply text-task-yellow;
+}
+
+.work-item-bug-color {
+  @apply text-error;
+}
+
+.focus-outline-standard {
+  @apply outline-2 outline-primary outline-offset-2 rounded;
+}
+
+.button-primary {
+  @apply bg-primary text-white;
+}
+
+.dialog-text-primary {
+  @apply text-primary;
+}
+
+.ms-Button--primary {
+  @apply bg-white text-primary border border-primary;
+}
+
+.ms-Button--primary:hover {
+  @apply bg-primary text-white;
+}
+
+.ms-Button--default {
+  @apply bg-white;
+}
+
+div.ms-Tooltip-content p.ms-Tooltip-subtext a {
+  @apply text-primary underline;
+}
+
+.ms-Pivot .ms-Button {
+  @apply text-(--text-primary-color);
+}
+
+.ms-Pivot-link:hover {
+  @apply text-(--status-info-foreground) bg-inherit;
+}
+
+.ms-Checkbox.is-disabled {
+  @apply bg-transparent!;
+}
+
+.is-disabled .ms-Checkbox-text {
+  @apply text-(--text-disabled-color)!;
+}
+
+.is-disabled {
+  @apply bg-(--text-disabled-color) border-(--text-disabled-color) text-(--text-disabled-color);
+
+  & :is(.ms-Checkbox-text, .ms-Checkbox-checkbox, .ms-Checkbox-checkmark) {
+    @apply text-(--text-disabled-color)!;
+  }
+}
+
+.ms-ContextualMenu-divider {
+  @apply opacity-20;
+}
+
+.header-menu-with-timer {
+  @apply flex items-center gap-3;
+}
+
+.extension-settings-menu {
+  @apply mr-1 flex flex-nowrap;
+
+  & .extension-settings-button {
+    @apply flex items-center gap-1 cursor-pointer text-sm text-left bg-inherit border-0 min-w-0 mx-2 p-0 text-(--text-primary-color);
+
+    & svg {
+      @apply w-4;
+    }
+
+    &:hover {
+      @apply text-primary;
+    }
+
+    &:focus-visible {
+      @apply outline-2 outline-primary outline-offset-2 rounded;
+    }
+  }
+
+  & .callout-menu {
+    @apply absolute mt-3 bg-[rgb(var(--palette-neutral-2))] text-sm shadow-lg drop-shadow-lg min-w-48 z-10;
+
+    &.left {
+      @apply left-0;
+    }
+
+    &.right {
+      @apply right-0;
+    }
+
+    & button {
+      @apply flex items-center gap-2 w-full px-4 py-2 bg-inherit border-0 text-(--text-primary-color) cursor-pointer;
+
+      &:hover {
+        @apply text-primary;
+      }
+
+      & svg {
+        @apply w-4 h-4;
+      }
+    }
+  }
+}
+
+.carousel-container {
+  @apply relative w-full flex flex-col items-center gap-4;
+}
+
+.carousel-track {
+  @apply flex overflow-x-auto w-full relative snap-x snap-mandatory scroll-smooth [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none];
+
+  &::-webkit-scrollbar {
+    @apply hidden; /* Chrome/Safari */
+  }
+}
+
+.carousel-slide {
+  @apply flex-none w-full relative flex items-center justify-center snap-center snap-always min-w-full;
+
+  & .back-button {
+    @apply flex items-center justify-center absolute top-1/2 left-2.5 -translate-y-1/2 z-10 bg-(--border-subtle-color) text-(--text-primary-color) cursor-pointer transition-transform duration-200 ease-in-out border border-gray-300 rounded-full w-10 h-10 shadow-sm no-underline hover:bg-white hover:shadow-md hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+
+    &:hover {
+      @apply bg-(--border-subtle-color);
+    }
+  }
+
+  & .next-button {
+    @apply flex items-center justify-center absolute top-1/2 right-2.5 -translate-y-1/2 z-10 bg-(--border-subtle-color) text-(--text-primary-color) cursor-pointer transition-transform duration-200 ease-in-out border border-gray-300 rounded-full w-10 h-10 shadow-sm no-underline hover:bg-white hover:shadow-md hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+
+    &:hover {
+      @apply bg-(--border-subtle-color);
+    }
+  }
+
+  & .feedback-carousel-item {
+    @apply w-full max-w-xl ml-[calc((100%-320px)/2)];
+
+    & .related-task-sub-card {
+      @apply w-80;
+    }
+
+    & .feedback-item .main-item-card {
+      @apply w-80;
+    }
+  }
+}
+
+.carousel-viewport {
+  @apply w-full flex items-center justify-center;
+}
+
+.feedback-carousel-pivot-item .carousel-container {
+  @apply min-h-90;
+}
+
+.carousel-dots {
+  @apply flex items-center justify-center gap-2;
+
+  & li {
+    @apply list-none;
+  }
+}
+
+.carousel-dot {
+  @apply block w-2.5 h-2.5 rounded-full bg-(--text-secondary-color) opacity-30 transition duration-150 ease-in-out transform;
+
+  &:hover,
+  &:focus-visible {
+    @apply opacity-70 outline-none ring-2 ring-offset-2 ring-(--border-subtle-color);
+  }
+}
+
+.carousel-container:not(:has(.carousel-slide:target)) .carousel-dots li:first-child .carousel-dot {
+  @apply opacity-100;
+}
+
+.contextual-menu-button {
+  @apply cursor-pointer;
+
+  &:focus-visible {
+    @apply outline-2 outline-primary outline-offset-2 rounded;
+  }
+
+  & svg {
+    @apply w-5 h-5;
+  }
+}
+
+.extended-options-menu {
+  @apply bg-(--callout-background-color) max-h-none;
+
+  & button.ms-ContextualMenu-link {
+    @apply text-(--text-primary-color);
+
+    &:hover {
+      @apply bg-(--border-subtle-color) text-primary;
+    }
+  }
+}
+
+.ms-ContextualMenu-Callout .ms-Callout-main {
+  @apply bg-(--callout-background-color);
+}
+
+.confirm-changes-dialog,
+.delete-feedback-item-dialog,
+.move-feedback-item-dialog,
+.remove-feedback-item-from-group-dialog,
+.board-metadata-dialog,
+.delete-feedback-item-dialog,
+.team-effectiveness-dialog,
+.choose-column-accent-color-dialog,
+.retro-summary-dialog,
+.team-assessment-history-dialog,
+.whats-new-dialog,
+.prime-directive-dialog,
+.user-guide-dialog,
+.volunteer-dialog,
+.keyboard-shortcuts-dialog,
+.archive-board-dialog,
+.edit-column-notes-dialog,
+.delete-board-dialog,
+.choose-column-icon-dialog,
+.link-existing-work-item-dialog,
+.unlink-work-item-confirmation-dialog,
+.preview-email-dialog,
+.carousel-dialog {
+  @apply w-1/2 bg-(--background-color) fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 z-1 border border-(--border-subtle-color) backdrop:backdrop-blur-xs backdrop:bg-black/50 shadow-2xl drop-shadow-2xl max-h-[80vh];
+
+  & table {
+    @apply w-full border-collapse text-left;
+
+    & tr {
+      @apply border-b border-(--border-subtle-color);
+
+      & td:first-child,
+      & th:first-child {
+        @apply py-2 px-3 w-2/5;
+      }
+    }
+
+    & kbd {
+      @apply py-0.5 px-1.5 mx-0.5 text-(--text-primary-color) rounded bg-(--border-subtle-color) font-mono text-xs shadow-sm;
+    }
+  }
+
+  & .keyboard-shortcuts-key-separator {
+    @apply mx-1 text-(--text-secondary-color);
+  }
+
+  & .header {
+    @apply flex justify-between items-center px-5 py-3 text-(--text-primary-color) shrink-0;
+
+    & .title {
+      @apply m-0 text-xl font-semibold;
+    }
+
+    & button {
+      @apply border-0 cursor-pointer p-2 text-base;
+
+      &:hover {
+        @apply bg-(--border-subtle-color) rounded;
+      }
+    }
+  }
+
+  & .subText {
+    @apply block px-5 py-2 text-sm text-(--text-primary-color);
+
+    &.li {
+      @apply list-item list-inside list-disc ml-4;
+    }
+
+    & .form-group {
+      @apply flex flex-col gap-2;
+
+      & button {
+        @apply flex items-center gap-1 cursor-pointer;
+
+        & svg {
+          @apply w-4 h-4;
+        }
+      }
+
+      & textarea {
+        @apply h-20 p-2 border bg-(--background-color) text-(--text-primary-color);
+      }
+
+      & input.search-box {
+        @apply w-full p-1 border border-(--border-subtle-color) bg-[rgb(var(--palette-neutral-4))] text-(--text-primary-color);
+      }
+    }
+  }
+
+  & .inner {
+    @apply flex items-center justify-end gap-3 px-5 py-3 shrink-0;
+
+    & button {
+      @apply flex items-center gap-1 px-4 py-2 rounded text-sm border border-(--border-subtle-color) cursor-pointer bg-(--text-primary-color) text-[rgb(var(--palette-neutral-0))];
+
+      &.default {
+        @apply bg-primary text-white border-primary;
+      }
+
+      & svg {
+        @apply w-4 h-4;
+      }
+    }
+  }
+}
+
+.preview-email-content {
+  @apply w-full p-2;
+}
+
+.choose-feedback-column-icon-button {
+  @apply w-18 h-12 flex items-center justify-center rounded-lg cursor-pointer;
+
+  &:hover {
+    @apply bg-(--border-subtle-color);
+  }
+}
+
+.editable-document-card-title {
+  @apply overflow-hidden wrap-break-word min-h-25 text-(--text-primary-color);
+
+  & .editable-text {
+    @apply inline-block max-w-full align-middle whitespace-pre-wrap wrap-break-word cursor-text text-base;
+
+    & a {
+      @apply text-primary underline;
+    }
+  }
+
+  & .editable-text-input-container {
+    @apply inline-block min-w-3/4 w-full resize-none align-middle;
+
+    & .editable-text-input {
+      @apply text-base px-1 border rounded-sm bg-white text-black min-h-15 w-full;
+
+      &.error-border {
+        @apply border border-error -m-px;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  & .edit-symbol {
+    @apply text-gray-500 inline-block align-middle pl-2.5;
+  }
+
+  & .input-validation-message {
+    @apply float-left text-error text-sm;
+  }
+
+  & .save-symbol {
+    @apply text-gray-500 inline-block align-middle pl-2.5;
+  }
+}
+
+.feedback-votes-count {
+  @apply text-base ml-3 flex flex-nowrap items-center gap-2;
+
+  & .entry {
+    @apply flex items-center gap-1 -ml-1 text-sm;
+
+    & svg {
+      @apply w-5 h-5;
+    }
+  }
+
+  & .separator {
+    @apply flex items-center text-base text-(--text-secondary-color);
+  }
+}
+
+.feedback-board {
+  @apply w-full h-[calc(100vh-92px)] grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.board-metadata-form-permissions .board-metadata-form-board-settings {
+  & .board-metadata-form-section-information {
+    @apply m-2.5;
+  }
+
+  & .search-bar {
+    @apply pt-0 px-2.5 pb-2.5;
+
+    & .permission-search-input {
+      @apply w-full p-1 border border-(--border-subtle-color) bg-[rgb(var(--palette-neutral-4))] text-(--text-primary-color);
+    }
+  }
+
+  & .board-metadata-table-container {
+    @apply max-h-85 overflow-auto;
+  }
+
+  & .board-metadata-table {
+    @apply border-t border-black/10 border-collapse overflow-auto w-full;
+
+    & :is(td, th) {
+      @apply text-(--text-primary-color) p-2.5;
+    }
+
+    & th {
+      @apply sticky bg-(--background-color) border-b border-(--border-subtle-color) top-0 z-1;
+
+      &.cell-checkbox {
+        @apply w-7.5;
+      }
+    }
+
+    & .option-row td.cell-content {
+      @apply bg-(--background-color);
+
+      & .content-image {
+        @apply flex pr-2.5;
+
+        & .permission-image {
+          @apply w-11 min-w-11 max-w-11 h-11 rounded-full flex items-center justify-center text-(--text-primary-color) bg-(--background-color);
+        }
+      }
+
+      & .content-text {
+        @apply text-(--text-primary-color);
+
+        & .content-sub-text {
+          @apply text-(--text-secondary-color);
+        }
+      }
+
+      & .content-badge {
+        @apply flex justify-center items-center ml-auto;
+
+        & span {
+          @apply bg-(--background-color) py-0.5 px-2 rounded-full text-(--text-primary-color) whitespace-nowrap;
+        }
+      }
+    }
+  }
+}
+
+.feedback-item-group {
+  @apply break-inside-avoid box-border min-w-0;
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  &:focus-visible .mainItemCard {
+    @apply outline-3 outline-primary outline-offset-2 shadow-md shadow-blue-500/30;
+  }
+
+  & .item-cards {
+    @apply flex flex-col w-full list-none m-0 p-0;
+
+    & > li {
+      @apply min-w-0;
+    }
+
+    & .feedbackItemGroupItem.removeFeedbackItem .ms-DocumentCard {
+      @apply animate-[fadeOutToRed_1000ms_ease-in_1_forwards];
+    }
+
+    & .mainItemCard {
+      @apply bg-(--background-color) border border-border-gray;
+    }
+
+    & .mainItemCard .card-integral-part {
+      @apply border-l-3;
+    }
+
+    & .mainItemCard .card-header .feedback-expand-group {
+      @apply flex items-center h-9 max-w-40 z-1 m-0 mr-auto bg-inherit border-0 leading-9 text-xs font-semibold;
+
+      &:focus-visible {
+        @apply outline-2 outline-primary outline-offset-2 rounded-sm;
+      }
+
+      & svg {
+        @apply w-9 ml-1 leading-[inherit];
+      }
+    }
+  }
+
+  &.feedback-item-group-expanded .feedbackItemGroupGroupedItem {
+    @apply scale-95;
+  }
+
+  &.feedback-item-group-expanded .feedbackItemGroupGroupedItem .groupedItemCard {
+    @apply w-full mt-0 box-border bg-(--background-color) border border-border-gray;
+  }
+
+  &.feedback-item-group-expanded .feedbackItemGroupGroupedItem .groupedItemCard .card-integral-part {
+    @apply border-l-3 border-solid bg-(--background-color);
+  }
+}
+
+.no-boards-container {
+  @apply pt-32 w-full flex justify-center items-center flex-col text-sm text-center;
+
+  & .no-boards-text {
+    @apply mt-2.5 mb-4 max-w-full text-2xl;
+  }
+
+  & .no-boards-sub-text {
+    @apply mb-4;
+  }
+
+  & .create-new-board-button {
+    @apply m-2.5 bg-primary text-white cursor-pointer px-4 py-2 rounded;
+  }
+}
+
+.selector-list-header {
+  @apply bg-(--background-color) flex h-8 w-md pl-2.5;
+
+  & .selector-list-header-text {
+    @apply align-middle text-center leading-8 text-primary font-semibold text-sm;
+  }
+}
+
+.selector-list-container {
+  @apply max-h-62 overflow-auto;
+
+  & .selector-list-item {
+    @apply bg-(--background-color) h-8 w-md flex cursor-pointer pl-2 text-(--text-primary-color);
+
+    &:hover {
+      @apply bg-(--border-subtle-color) text-black;
+    }
+  }
+
+  & .selector-list-item-text {
+    @apply align-middle leading-8 mr-4 text-sm font-normal overflow-hidden whitespace-nowrap text-ellipsis;
+  }
+
+  & i {
+    @apply align-middle text-center leading-8 mr-2 text-base;
+  }
+}
+
+.selector-option {
+  @apply w-60 text-ellipsis whitespace-nowrap text-sm h-8 px-2 cursor-pointer bg-(--callout-background-color) text-(--text-primary-color) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+
+  & option {
+    @apply text-sm px-2 bg-(--callout-background-color) text-(--text-primary-color);
+  }
+}
+
+.list-item-shimmer {
+  @apply py-1.5 px-5;
+}
+
+.related-task-sub-card {
+  @apply flex items-center max-w-full bg-(--background-color) text-(--text-primary-color) border-r-3;
+
+  & .work-item-type-icon {
+    @apply w-4 h-4 m-2;
+  }
+
+  & .details {
+    @apply flex-1 whitespace-nowrap overflow-hidden text-xs text-(--text-primary-color) text-ellipsis cursor-pointer;
+  }
+
+  & .action {
+    @apply m-2 cursor-pointer;
+
+    &:hover {
+      @apply text-primary;
+    }
+
+    & svg {
+      @apply w-4 h-4;
+    }
+  }
+}
+
+.work-item-icon {
+  @apply w-4;
+}
+
+.add-action-item-wrapper {
+  @apply flex justify-end bg-(--nav-vertical-background-color) relative;
+
+  & .add-action-item-button {
+    @apply flex items-center m-2 text-(--text-primary-color) text-sm cursor-pointer;
+
+    &:hover {
+      @apply text-primary;
+    }
+
+    & svg {
+      @apply w-5 h-5 text-primary;
+    }
+  }
+}
+
+.add-action-item-list-items .ms-List-cell:hover {
+  @apply bg-(--border-subtle-color);
+}
+
+.action-item-display-container {
+  display: contents;
+}
+
+.action-items {
+  @apply border-l-3 border-border-gray;
+
+  & .work-item-type-icon-container {
+    @apply bg-(--background-color);
+  }
+
+  & .ms-DocumentCard .ms-DocumentCardActions {
+    @apply p-0 pr-1.5;
+
+    & .ms-DocumentCardActions-action {
+      @apply h-7.5 w-6;
+
+      & .ms-Button .ms-Button-flexContainer i {
+        @apply text-primary text-xs;
+      }
+
+      & .ms-Button:hover:not(:disabled) i {
+        @apply font-bold;
+      }
+    }
+  }
+
+  & .ms-DocumentCardPreview {
+    @apply border-r border-border-gray;
+  }
+}
+
+.popout-container {
+  @apply absolute right-0 bottom-full bg-[rgb(var(--palette-neutral-6))] text-sm shadow-[rgb(var(--palette-neutral-0))] shadow-lg min-w-60 max-h-[60vh] z-10 overflow-y-auto;
+
+  & .list-item {
+    @apply flex items-center gap-2 cursor-pointer p-2 bg-inherit w-full border-0 overflow-hidden text-(--text-primary-color);
+
+    & svg,
+    & img {
+      @apply w-4 h-4;
+    }
+
+    &:hover {
+      @apply text-primary;
+    }
+  }
+
+  & .separator {
+    @apply border-t border-(--border-subtle-color);
+  }
+}
+
+.retrospectives-link-existing-work-item-dialog {
+  @apply w-125 h-62 max-w-md;
+
+  & .error-container {
+    @apply h-5;
+  }
+
+  & .output-container {
+    @apply h-10;
+  }
+
+  & .related-task-sub-card {
+    @apply w-full;
+  }
+
+  & .work-item-not-found {
+    @apply w-full;
+  }
+
+  & .input-validation-message {
+    @apply text-error;
+  }
+
+  & .work-item-id-input {
+    @apply w-full;
+  }
+}
+
+#feedback-board-summary-table-header {
+  @apply flex w-full h-16 items-center px-8 py-0;
+
+  & .menu-button {
+    @apply ml-1.5 mr-5 bg-gray-light;
+  }
+
+  & .board-summary-table-title {
+    @apply leading-10 text-lg font-semibold text-left text-(--text-primary-color);
+  }
+}
+
+.board-summary-table-container {
+  @apply min-w-250 overflow-auto h-[calc(100vh-92px)];
+
+  & th,
+  & td {
+    @apply border border-black/2 whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer;
+  }
+
+  & table {
+    @apply border border-black/10 border-collapse overflow-auto w-full;
+
+    & thead {
+      @apply bg-primary text-white;
+
+      & tr th {
+        @apply bg-primary font-normal h-8 leading-8 sticky p-1.5 top-0 z-1;
+      }
+
+      & tr th:first-of-type {
+        @apply w-9 max-w-9 min-w-9;
+      }
+
+      & tr th.asc {
+        @apply shadow-[inset_0_3px_0_0_rgba(0,0,0,0.6)];
+      }
+
+      & tr th.desc {
+        @apply shadow-[inset_0_-2px_0_0_rgba(var(--palette-neutral-100,0,0,0),1)];
+      }
+    }
+
+    & tbody {
+      & tr td {
+        @apply items-center text-sm font-normal h-11 py-1.5 px-1.5;
+
+        &:first-of-type {
+          @apply p-0;
+
+          & button {
+            @apply flex items-center justify-self-center;
+          }
+        }
+      }
+
+      & tr:nth-child(even) {
+        @apply bg-(--border-subtle-color);
+      }
+
+      & tr .board-summary-container {
+        @apply flex justify-center my-2;
+
+        & .board-summary-card {
+          @apply p-5 w-1/5 min-w-68 border border-(--text-primary-color) rounded flex flex-col gap-2;
+
+          & h2 {
+            @apply text-lg border-b-3 border-primary;
+          }
+
+          & svg {
+            @apply w-5 h-5;
+          }
+
+          & .status-warning-text {
+            @apply text-(--status-warning-text);
+          }
+
+          & .status-success-text {
+            @apply text-(--status-success-text);
+          }
+
+          & .status-primary-text {
+            @apply text-primary;
+          }
+        }
+
+        & .action-items-summary-card {
+          @apply p-5 w-4/5 max-w-200 overflow-y-auto border border-transparent;
+        }
+      }
+
+      & tr .board-summary-container .items-stats-container {
+        @apply flex items-center gap-3;
+      }
+
+      & tr .board-summary-container .board-summary-card .items-stats-container .count-and-text .count,
+      & tr .board-summary-container .action-items-summary-card .items-stats-container .count-and-text .count {
+        @apply font-semibold text-sm;
+      }
+
+      & tr .board-summary-container .board-summary-card .items-stats-container .count-and-text .text,
+      & tr .board-summary-container .action-items-summary-card .items-stats-container .count-and-text .text {
+        @apply text-xs text-(--text-primary-color);
+      }
+
+      & tr .board-summary-container .board-summary-card .items-stats-container .stats-icon,
+      & tr .board-summary-container .action-items-summary-card .items-stats-container .stats-icon {
+        @apply h-8 w-8 text-base p-2;
+      }
+
+      & tr .board-summary-container .action-items-summary-card div[role="row"] {
+        @apply bg-(--background-color) text-(--text-primary-color) pt-0 border-0;
+      }
+
+      & tr .board-summary-container .action-items-summary-card div[role="row"]:nth-child(even) {
+        @apply bg-(--border-subtle-color);
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-DetailsList-headerWrapper {
+        @apply border-b-3 border-(--border-subtle-color);
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table {
+        @apply w-full h-full border-collapse table-fixed;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th {
+        @apply bg-(--background-color) text-(--text-primary-color) text-left px-2 overflow-hidden text-ellipsis whitespace-nowrap;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th.sortable button {
+        @apply bg-transparent border-0 text-inherit cursor-pointer text-left p-0 w-full;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td {
+        @apply bg-(--background-color) text-(--text-primary-color) border-0 px-2 text-sm overflow-hidden text-ellipsis whitespace-nowrap;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(1),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(1) {
+        @apply px-1 w-[3%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(2),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(2) {
+        @apply w-[39%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(3),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(3) {
+        @apply w-[9%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(4),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(4) {
+        @apply w-[9%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(5),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(5) {
+        @apply w-[14%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(6),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(6) {
+        @apply w-[20%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table th:nth-child(7),
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table td:nth-child(7) {
+        @apply w-[6%];
+      }
+
+      & tr .board-summary-container .action-items-summary-card .board-summary-action-items-table tbody tr:nth-child(even) td {
+        @apply bg-(--border-subtle-color);
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-DetailsHeader-cell[role="columnheader"] {
+        @apply bg-(--background-color) text-(--text-primary-color) border-b border-white;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-DetailsHeader-cell[role="columnheader"]:hover {
+        @apply text-(--text-primary-color);
+      }
+
+      & tr .board-summary-container .action-items-summary-card .overflow-ellipsis {
+        @apply text-ellipsis overflow-hidden whitespace-nowrap block w-full;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-Viewport {
+        @apply h-full;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-Viewport .ms-DetailsList {
+        @apply h-full;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-Viewport .ms-DetailsRow {
+        @apply border-0;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .ms-List-cell {
+        @apply text-sm;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .work-item-title {
+        @apply cursor-pointer text-start max-w-full overflow-hidden text-ellipsis whitespace-nowrap block;
+      }
+
+      & tr .board-summary-container .action-items-summary-card .no-action-items {
+        @apply text-sm relative top-1/2 -translate-y-1/2 text-center;
+      }
+
+      & tr .board-summary-container .board-summary-card .board-summary-card-title .ms-DocumentCardTitle {
+        @apply font-semibold p-0 mb-5 h-auto text-(--text-primary-color);
+      }
+    }
+  }
+
+  & .centered-cell {
+    @apply flex justify-center items-center h-full;
+  }
+
+  & .workItemsCount {
+    @apply text-center;
+  }
+
+  & .trash-icon-header {
+    @apply text-white cursor-pointer;
+  }
+
+  & .trash-icon-disabled {
+    @apply opacity-25 cursor-not-allowed;
+  }
+
+  & .trash-icon {
+    @apply cursor-pointer;
+
+    &:hover {
+      @apply text-error;
+    }
+
+    & svg {
+      @apply w-6 h-6;
+    }
+  }
+}
+
+.warning-text {
+  @apply text-error;
+
+  & i {
+    @apply mr-1.5;
+  }
+}
+
+.spinner {
+  @apply flex items-center justify-center h-screen gap-2;
+
+  & div {
+    @apply w-7 h-7 border-2 border-gray-200 border-t-primary rounded-full animate-spin;
+  }
+}
+
+.flex-grow-spacer {
+  @apply flex-1;
+}
+
+.team-assessment-button {
+  @apply flex items-center gap-1 bg-transparent cursor-pointer text-sm py-2 px-4 hover:bg-transparent focus:outline-none border border-solid border-(--nav-header-active-item-background) rounded-lg;
+
+  &:hover {
+    @apply border border-solid text-primary;
+  }
+
+  & svg {
+    @apply w-5 h-5;
+  }
+}
+
+.focus-mode-button {
+  @apply flex items-center gap-1 bg-transparent border-0 cursor-pointer text-sm py-2 px-4 hover:bg-transparent focus:outline-none hover:text-primary;
+
+  & svg {
+    @apply w-5 h-5;
+  }
+
+  & span {
+    @apply hidden lg:inline;
+  }
+}
+
+.team-assessment-no-data {
+  @apply p-5 text-center;
+}
+
+.team-assessment-info-text {
+  @apply mb-2.5;
+}
+
+.team-assessment-history-svg {
+  @apply max-w-full h-auto;
+
+  & text {
+    @apply text-sm font-normal fill-(--text-primary-color);
+  }
+}
+
+.chart-legend-color-unfavorable {
+  @apply bg-error;
+}
+
+.chart-legend-color-neutral {
+  @apply bg-task-yellow;
+}
+
+.chart-legend-color-favorable {
+  @apply bg-success;
+}
+
+.card-footer {
+  @apply mx-4 pb-2 text-(--text-secondary-color) flex flex-row text-xs;
+
+  & .card-id {
+    @apply grow;
+  }
+}
+
+.feedback-carousel-pivot > div {
+  @apply flex;
+}
+
+.feedback-carousel-pivot > .ms-Pivot .ms-Button {
+  @apply bg-(--background-color) text-(--text-primary-color) border-none;
+}
+
+.feedback-carousel-pivot-item {
+  @apply w-full;
+}
+
+.feedback-column {
+  @apply border-r-2 border-l-2 border-(--nav-header-active-item-background) min-w-0 overflow-y-auto;
+
+  &:focus {
+    @apply outline-none;
+  }
+
+  &:focus-within .feedback-column-header {
+    @apply bg-[rgba(0,120,212,0.03)];
+  }
+
+  &:last-child {
+    @apply border-r-0;
+  }
+
+  &:first-child {
+    @apply border-l-0;
+  }
+}
+
+.feedback-column-header {
+  @apply px-4 py-2 border-b-3 border-(--nav-header-active-item-background) flex items-center justify-between gap-2 h-14;
+
+  & .feedback-column-title {
+    @apply flex items-center;
+
+    & .feedback-column-icon {
+      @apply text-xl pr-1.5;
+    }
+
+    & .feedback-column-name {
+      @apply text-sm ml-1.5;
+    }
+  }
+
+  & .feedback-column-actions {
+    @apply inline-flex items-center gap-1;
+
+    & .feedback-column-edit-button,
+    & .feedback-column-info-button {
+      @apply text-[rgba(var(--palette-neutral-80,51,51,51),1)] cursor-pointer bg-transparent border-0 p-2 rounded-sm transition-colors duration-200 ml-0.5;
+
+      &:hover {
+        @apply bg-[rgba(var(--palette-neutral-20,200,200,200),0.5)];
+      }
+
+      &:focus-visible {
+        @apply outline-2 outline-primary outline-offset-2;
+      }
+
+      & svg {
+        @apply w-5 h-5;
+      }
+    }
+  }
+}
+
+.feedback-column-content {
+  @apply p-2.5 w-full box-border overflow-visible;
+}
+
+.feedback-column-info-dialog-text {
+  @apply whitespace-pre-wrap;
+}
+
+.feedback-items-container {
+  @apply pt-2.5 w-full box-border overflow-visible grid gap-3 list-none m-0 p-0;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  & > li {
+    @apply min-w-0;
+  }
+}
+
+.team-assessment-history-button {
+  @apply flex items-center gap-2 bg-transparent border-0 cursor-pointer text-sm hover:bg-transparent focus:outline-none;
+
+  & svg {
+    @apply w-5 h-5;
+  }
+}
+
+.create-button {
+  @apply flex items-center p-2 gap-1 text-sm cursor-pointer;
+
+  & svg {
+    @apply w-5 h-5 text-primary;
+  }
+
+  &:focus-visible {
+    @apply outline-2 outline-primary outline-offset-2;
+  }
+}
+
+.retro-summary-dialog .retro-summary-section {
+  @apply p-2.5;
+
+  & #retro-summary-created-by {
+    @apply my-1 mx-0;
+  }
+
+  & .retro-summary-section-header {
+    @apply text-sm text-right bg-primary/50 mb-1 py-1.5 px-2 font-medium;
+  }
+
+  & .retro-summary-section-item .retro-summary-section-item-header {
+    @apply font-bold;
+  }
+
+  & .retro-summary-item-horizontal-group {
+    @apply flex-row flex items-center mt-2.5 border-t border-(--border-subtle-color) pt-2.5 w-full;
+
+    & .horizontal-group-item {
+      @apply m-auto;
+    }
+  }
+
+  & .retro-summary-contributors-section {
+    @apply flex flex-wrap p-1.5;
+
+    & .retro-summary-contributor {
+      @apply rounded-lg p-3 w-fit bg-(--border-subtle-color) mr-2.5 mb-2.5;
+
+      &:last-child {
+        @apply mr-0;
+      }
+    }
+  }
+}
+
+.retro-summary-dialog img.avatar {
+  @apply h-6 rounded-full align-middle -mt-1.5 inline;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores {
+  @apply clear-both relative min-w-25 min-h-25 p-0 flex flex-col items-center;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart {
+  @apply flex-row p-0 my-2.5 mx-0 w-full list-none;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart .chart-question-block {
+  @apply flex flex-row my-0.5 mx-0 gap-1;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart .chart-question-block .chart-question {
+  @apply w-72;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart .chart-question-block .team-effectiveness-average-number {
+  @apply p-1 font-bold my-auto mx-0.5 w-7 text-center;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart .chart-question-block .assessment-chart-action {
+  @apply whitespace-nowrap py-0 px-1.5 bg-primary;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart .chart-response {
+  & span {
+    @apply grid justify-end p-2 pl-24 pointer-events-none rounded-4xl bg-black/50;
+  }
+
+  &.red-chart-response {
+    @apply bg-error;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #bd1c1a 9px, #bd1c1a 10px);
+  }
+
+  &.yellow-chart-response {
+    @apply bg-task-yellow;
+    background-image: repeating-linear-gradient(90deg, transparent, transparent 15px, #ceab02 15px, #ceab02 16px);
+  }
+
+  &.green-chart-response {
+    @apply bg-success;
+    background-image: radial-gradient(#006238 20%, transparent 20%), radial-gradient(#006238 20%, transparent 20%);
+    background-size: 12px 12px;
+    background-position:
+      top left,
+      6px 6px;
+  }
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores ul.chart li div {
+  @apply flex items-center justify-end min-h-2 p-2 box-border;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section {
+  @apply flex items-center justify-center flex-col rounded-sm border-2 border-(--border-subtle-color) p-2.5 w-fit mb-2.5;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section .favorability-header {
+  @apply font-bold;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section .chart-legend-group {
+  @apply flex;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section section {
+  @apply flex mr-2.5;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section section:last-child {
+  @apply mr-0;
+}
+
+.retro-summary-dialog .retro-summary-effectiveness-scores .chart-legend-section section div {
+  @apply w-5 h-5 rounded-full mr-1;
+}
+
+.retrospectives-team-assessment-history-dialog {
+  @apply max-w-280 w-auto flex items-center bg-(--background-color) text-(--text-primary-color);
+
+  & .ms-Dialog-title {
+    @apply text-left text-(--text-primary-color);
+  }
+
+  & svg {
+    @apply border border-[#e0e0e0] rounded bg-[#fafafa];
+  }
+
+  & h3 {
+    @apply text-(--text-primary-color) text-base font-semibold;
+  }
+
+  & circle:hover {
+    @apply cursor-pointer [r:7];
+  }
+}
+
+.board-metadata-form {
+  & hr {
+    @apply border border-primary;
+  }
+
+  & .board-metadata-form-section-information {
+    @apply grid grid-cols-[auto_1fr] items-center gap-1 border-3 border-gray-medium bg-gray-medium my-1.5 mx-0 mb-2.5 p-1;
+
+    &.warning-information {
+      @apply bg-task-yellow border-task-yellow;
+    }
+
+    & svg {
+      @apply w-5 h-5;
+    }
+  }
+
+  & .board-metadata-form-setting-label {
+    @apply flex;
+  }
+
+  & .board-metadata-form-anonymous-feedback-section {
+    @apply my-5 mx-10;
+  }
+
+  & .board-metadata-form-section-header {
+    @apply py-1 px-2.5 font-medium m-0 bg-primary text-right text-(--text-primary-color);
+
+    &.bottom-padding-zero {
+      @apply pb-0;
+    }
+  }
+
+  & .board-metadata-edit-column-settings {
+    @apply p-2;
+  }
+
+  & .board-metadata-form-section-subheader {
+    @apply font-semibold w-full flex items-center m-1 text-(--text-primary-color);
+
+    & label {
+      @apply flex-1 text-start;
+    }
+  }
+
+  & .ms-Checkbox.is-checked .ms-Checkbox-checkbox {
+    @apply bg-(--background-color);
+  }
+
+  & .ms-Checkbox.is-checked .ms-Checkbox-checkbox:hover {
+    @apply bg-primary text-white;
+  }
+
+  & .ms-Checkbox.is-checked .ms-Checkbox-checkmark {
+    @apply text-(--text-primary-color);
+  }
+
+  & .ms-Checkbox.is-checked .ms-Checkbox-checkmark:hover {
+    @apply text-white;
+  }
+
+  & .ms-Checkbox.is-disabled .ms-Checkbox-checkbox:hover {
+    @apply bg-(--background-color);
+  }
+
+  & .ms-Checkbox .ms-Checkbox-text {
+    @apply text-(--text-primary-color);
+  }
+
+  & .ms-Checkbox .ms-Checkbox-text:hover {
+    @apply text-primary;
+  }
+
+  & .ms-Checkbox .ms-Checkbox-checkbox {
+    @apply bg-(--background-color) border-[#aaa];
+  }
+
+  & .ms-Checkbox .ms-Checkbox-checkbox:hover {
+    @apply bg-primary;
+  }
+
+  & .ms-Checkbox .ms-Checkbox-checkmark {
+    @apply text-(--text-primary-color);
+  }
+
+  & .ms-Checkbox .ms-Checkbox-checkmark:hover {
+    @apply text-white;
+  }
+
+  & .feedback-column-card {
+    @apply bg-(---nav-vertical-background-color) text-(--text-primary-color) h-15 mt-2.5 items-center;
+
+    & :is(.feedback-column-card-icon-button, .feedback-column-card-accent-color-button) {
+      @apply bg-transparent! m-2 border-none text-(--text-primary-color) cursor-pointer;
+    }
+
+    & .editable-document-card-title {
+      @apply mt-0 min-h-auto text-inherit;
+    }
+
+    & .editable-document-card-title .input-validation-message {
+      @apply float-none block text-xs;
+    }
+
+    & .editable-document-card-title .editable-text {
+      @apply [display:inherit] ml-2.5 text-start;
+    }
+
+    & .editable-document-card-title .editable-text-input-container {
+      @apply pt-0 w-auto;
+    }
+
+    & :is(.feedback-column-card-move-up-button, .feedback-column-card-move-down-button, .feedback-column-card-delete-button) {
+      @apply bg-(--background-color) border-none my-0 mx-1;
+    }
+
+    & :is(.feedback-column-card-move-up-button, .feedback-column-card-move-down-button, .feedback-column-card-delete-button):hover {
+      @apply bg-gray-light;
+    }
+
+    & :is(.feedback-column-card-move-up-button, .feedback-column-card-move-down-button, .feedback-column-card-delete-button).is-disabled {
+      @apply bg-(--text-disabled-color);
+    }
+
+    & :is(.feedback-column-card-move-up-button, .feedback-column-card-move-down-button, .feedback-column-card-delete-button).is-disabled i {
+      @apply text-(--text-disabled-color);
+    }
+  }
+
+  & .feedback-column-card.marked-for-deletion {
+    @apply bg-(--text-disabled-color) ml-0.5;
+  }
+
+  & .feedback-column-card.marked-for-deletion .feedback-column-card-icon {
+    @apply text-black/30;
+  }
+
+  & .feedback-column-card.marked-for-deletion .editable-text {
+    @apply text-black/30;
+  }
+
+  & .feedback-column-card.marked-for-deletion i.ms-Button-icon {
+    @apply text-black/30;
+  }
+
+  & .feedback-column-card.marked-for-deletion .feedback-column-card-undelete-button {
+    @apply bg-white border-none;
+  }
+
+  & .feedback-column-card.marked-for-deletion .feedback-column-card-undelete-button:hover {
+    @apply bg-gray-light text-(--status-info-foreground);
+  }
+
+  & .feedback-column-card.marked-for-deletion .feedback-column-card-undelete-button.is-disabled i.ms-Button-icon {
+    @apply text-black/25;
+  }
+
+  & .feedback-column-card.marked-for-deletion .feedback-column-card-undelete-button i.ms-Button-icon {
+    @apply text-black;
+  }
+
+  & .create-feedback-column-card-button {
+    @apply flex items-center justify-self-center gap-1 text-(--text-primary-color) mt-2 p-2 cursor-pointer;
+
+    & svg {
+      @apply w-5 h-5 text-primary;
+    }
+  }
+
+  & .board-metadata-logo {
+    @apply mb-5;
+  }
+
+  & .input-validation-message {
+    @apply text-error;
+  }
+
+  & .title-input-container {
+    @apply text-base font-semibold flex flex-col items-center pb-0.5 flex-1;
+  }
+
+  & .title-input-container.column-template-dropdown {
+    @apply inline-flex bg-(--background-color) font-normal ml-2.5 w-2/3;
+  }
+
+  & .title-input-container.max-vote-counter .ms-TextField-wrapper .ms-TextField-fieldGroup {
+    @apply w-full;
+  }
+
+  & .title-input-container .ms-TextField-wrapper {
+    @apply flex items-center w-full;
+  }
+
+  & .title-input-container .ms-TextField-wrapper .ms-Label {
+    @apply w-12;
+  }
+
+  & .title-input-container .ms-TextField-wrapper .ms-TextField-fieldGroup {
+    @apply w-full max-w-full;
+  }
+
+  & .title-input-container .ms-TextField-wrapper .ms-TextField-fieldGroup #retrospective-title-input {
+    @apply w-full;
+  }
+
+  & .title-input-container .ms-TextField-errorMessage {
+    @apply -ml-20;
+  }
+}
+
+.retrospectives-choose-column-accent-color-dialog .choose-feedback-column-accent-color-button {
+  @apply text-3xl h-12 m-1;
+}
+
+.choose-column-icon-dialog .choose-feedback-column-icon-button {
+  @apply text-3xl h-12 m-1;
+}
+
+.retrospectives-board-metadata-dialog {
+  @apply w-125 max-w-125 max-h-full right-0 top-0 bottom-0 bg-(--background-color);
+}
+
+.retrospectives-board-metadata-dialog .ms-Dialog-title {
+  @apply text-(--text-primary-color);
+}
+
+.ms-Checkbox:not(.is-checked):hover .ms-Checkbox-checkmark {
+  @apply hidden;
+}
+
+.ms-Dialog-button.ms-Dialog-button--close .ms-Button-icon {
+  @apply text-(--text-primary-color);
+}
+
+.ms-Dialog-button.ms-Dialog-button--close:hover {
+  @apply bg-(--border-subtle-color);
+}
+
+.feedback-board-container {
+  @apply flex flex-col flex-1 h-[calc(100vh-88px)] min-h-0 border-t-4 border-(--nav-header-active-item-background) overflow-y-auto overflow-x-hidden;
+}
+
+.feedback-board-container-header-spacer {
+  @apply bg-(--background-color) h-px z-2 w-full fixed mt-10;
+}
+
+.extension-header-spacer {
+  @apply pb-12;
+}
+
+.team-filter-container .ms-TextField {
+  @apply my-2 mx-1.5;
+}
+
+#extension-header {
+  @apply flex z-2 w-full items-center justify-start py-2.5 px-4;
+}
+
+#extension-header .extension-title-text {
+  @apply text-3xl leading-10 tracking-[-0.04em] font-medium;
+}
+
+#extension-header .contact-us-button {
+  @apply mt-1 ml-auto mr-5;
+}
+
+#extension-header .contact-us-button .ms-Button {
+  @apply min-w-10;
+}
+
+#extension-header .contact-us-button:hover {
+  @apply bg-[#eeeeee];
+}
+
+#extension-header .contact-us-button i {
+  @apply text-black;
+}
+
+#extension-header .team-selector {
+  @apply font-normal flex items-baseline my-0 mx-6 pt-1;
+}
+
+.pivot-container {
+  @apply fixed top-11 z-2 w-full items-center justify-start;
+}
+
+.pivot-container .ms-Pivot {
+  @apply ml-0.5;
+}
+
+.pivot-container button[role="tab"] {
+  @apply text-[rgba(var(--palette-neutral-80,51,51,51),1)];
+}
+
+.pivot-container button[role="tab"]:hover {
+  @apply text-[rgba(var(--palette-neutral-80,51,51,51),1)] bg-transparent;
+}
+
+.pivot-tab {
+  @apply px-3 py-2 text-sm text-(--text-primary-color) bg-(--background-color) font-medium cursor-pointer border-b-2 border-transparent leading-none;
+
+  &:hover {
+    @apply text-primary;
+  }
+
+  &:focus-visible {
+    @apply outline-2 outline-primary outline-offset-2;
+  }
+
+  &.active {
+    @apply text-primary border-b-primary;
+  }
+}
+
+.vertical-tab-separator {
+  @apply w-0.5 flex h-6 bg-border-gray;
+}
+
+.menu-button {
+  @apply ml-1 mr-5 bg-gray-light;
+}
+
+.board-selector-group {
+  @apply flex pt-3 items-center;
+}
+
+.board-selector-group .board-selector {
+  @apply text-base flex items-baseline;
+}
+
+.board-actions-menu {
+  @apply mx-2;
+
+  & summary {
+    @apply contents list-none cursor-pointer;
+
+    & svg {
+      @apply w-4 h-4;
+    }
+  }
+
+  & .callout-menu {
+    @apply absolute mt-3 bg-[rgb(var(--palette-neutral-2))] text-sm shadow-lg drop-shadow-lg min-w-60 z-10;
+
+    &.left {
+      @apply left-0;
+    }
+
+    &.right {
+      @apply right-0;
+    }
+
+    & button {
+      @apply flex items-center gap-2 w-full text-left px-4 py-2 bg-inherit border-0 text-(--text-primary-color) cursor-pointer;
+
+      &:hover {
+        @apply text-primary;
+      }
+
+      & svg {
+        @apply w-4 h-4;
+      }
+    }
+
+    & .divider {
+      @apply border-t border-(--border-subtle-color);
+    }
+  }
+}
+
+.workflow-stage-header {
+  @apply flex items-center gap-3 flex-nowrap;
+}
+
+.workflow-stage-tab {
+  @apply px-3 py-1.5 text-sm text-(--text-primary-color) bg-(--background-color) font-medium cursor-pointer border-b-2 border-transparent transition-colors duration-150 leading-none;
+
+  &:hover {
+    @apply text-primary;
+  }
+
+  &:focus-visible {
+    @apply outline-2 outline-primary outline-offset-2;
+  }
+}
+
+.workflow-stage-tab--active {
+  @apply text-primary border-b-primary;
+}
+
+.workflow-stage-timer {
+  @apply inline-flex items-center bg-(--nav-header-active-item-background) rounded text-(--text-primary-color);
+
+  & > span {
+    @apply bg-(--background-color) text-(--text-primary-color) border border-(--border-subtle-color) rounded py-1 px-2 text-xs min-w-15 text-center w-25;
+  }
+
+  & > span.timer-overtime {
+    @apply text-error-lighter font-semibold;
+  }
+
+  & select {
+    @apply bg-(--background-color) text-(--text-primary-color) border border-(--border-subtle-color) rounded py-1 px-2 text-xs w-25 cursor-pointer;
+
+    &:focus-visible {
+      @apply outline-2 outline-(--border-subtle-color) outline-offset-2;
+    }
+
+    & option {
+      @apply bg-(--background-color) text-(--text-primary-color);
+    }
+  }
+
+  & button {
+    @apply border-none bg-transparent text-inherit inline-flex items-center cursor-pointer font-[inherit] py-0.5 px-1.5;
+
+    & svg {
+      @apply w-4 h-4;
+    }
+
+    &:focus-visible {
+      @apply outline-2 outline-(--border-subtle-color) outline-offset-2;
+    }
+
+    &:disabled {
+      @apply cursor-default opacity-60;
+    }
+  }
+}
+
+.feedback-workflow-wrapper-background {
+  @apply relative -ml-80 top-1.5 -z-1;
+}
+
+.retro-message-bar {
+  @apply flex items-center px-3 py-2 text-xs bg-yellow-100 text-black/75;
+
+  & span {
+    @apply flex-1;
+
+    & a {
+      @apply underline text-primary;
+    }
+  }
+
+  & .actions {
+    @apply flex items-center gap-2;
+
+    & button {
+      @apply px-2 py-1 bg-gray-medium cursor-pointer;
+    }
+  }
+}
+
+.team-effectiveness-section-information {
+  @apply flex items-center justify-center gap-1 rounded bg-(--border-subtle-color) my-2.5 mx-auto p-1 w-86;
+
+  & svg {
+    @apply w-5 h-5;
+  }
+}
+
+.team-effectiveness-measurement-table {
+  @apply w-full border-separate [border-spacing:0_0.5em];
+
+  & thead {
+    @apply text-center;
+
+    & .team-effectiveness-favorability-label {
+      @apply border-b border-solid border-(--text-primary-color) font-light;
+    }
+
+    & .voting-measurement-index {
+      @apply w-9 text-white;
+
+      &.voting-measurement-index-unfavorable,
+      &.voting-measurement-index-neutral,
+      &.voting-measurement-index-favorable {
+        @apply [text-shadow:-2px_0_black,0_2px_black,2px_0_black,0_-2px_black];
+
+        &.voting-index-1 {
+          @apply bg-[#db4d4f];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #bd1c1a 9px, #bd1c1a 10px);
+        }
+
+        &.voting-index-2 {
+          @apply bg-[#e1664f];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #cc4127 9px, #cc4127 10px);
+        }
+
+        &.voting-index-3 {
+          @apply bg-[#ee794f];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #e15927 9px, #e15927 10px);
+        }
+
+        &.voting-index-4 {
+          @apply bg-[rgb(240,155,79)];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #cc7424 9px, #cc7424 10px);
+        }
+
+        &.voting-index-5 {
+          @apply bg-[rgb(251,177,79)];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #e89c37 9px, #e89c37 10px);
+        }
+
+        &.voting-index-6 {
+          @apply bg-[rgb(253,193,79)];
+          background-image: repeating-linear-gradient(45deg, transparent, transparent 9px, #df9e24 9px, #df9e24 10px);
+        }
+
+        &.voting-index-7 {
+          @apply bg-[rgb(255,211,92)];
+          background-image: repeating-linear-gradient(90deg, transparent, transparent 7px, #ecc503 7px, #ecc503 8px);
+        }
+
+        &.voting-index-8 {
+          @apply bg-[rgb(242,227,92)];
+          background-image: repeating-linear-gradient(90deg, transparent, transparent 7px, #f7d113 7px, #f7d113 8px);
+        }
+
+        &.voting-index-9 {
+          @apply bg-success bg-[radial-gradient(var(--color-success-lighter)_10%,transparent_10%),radial-gradient(var(--color-success-lighter)_10%,transparent_10%)] bg-size-[12px_12px] bg-position-[top_left,6px_6px];
+        }
+
+        &.voting-index-10 {
+          @apply bg-success bg-[radial-gradient(var(--color-success)_10%,transparent_10%),radial-gradient(var(--color-success)_10%,transparent_10%)] bg-size-[12px_12px] bg-position-[top_left,6px_6px];
+        }
+      }
+    }
+  }
+
+  & tbody .effectiveness-measurement-row:nth-child(odd) {
+    @apply bg-(--border-subtle-color);
+  }
+
+  & tbody .effectiveness-measurement-row th {
+    @apply font-normal p-2;
+
+    & p {
+      @apply flex items-center gap-1;
+    }
+  }
+
+  & tbody .effectiveness-measurement-row .team-assessment-score-button {
+    @apply text-(--text-primary-color) inline-flex items-center justify-center bg-transparent border-none cursor-pointer p-1;
+
+    &:focus-visible {
+      @apply outline-2 outline-(--nav-header-active-item-background) outline-offset-2;
+    }
+
+    &:hover .team-assessment-score-circle {
+      @apply border-primary;
+    }
+  }
+
+  & tbody .effectiveness-measurement-row .effectiveness-measurement-tooltip-cell {
+    @apply w-10 border-r-2 border-solid border-primary text-center;
+  }
+}
+
+.team-assessment-score-circle {
+  @apply inline-block w-4 h-4 border-2 rounded-full border-(--nav-header-active-item-background) transition-[background-color,border-color] duration-200 ease-in;
+}
+
+.team-assessment-score-button-selected .team-assessment-score-circle {
+  @apply bg-primary;
+}
+
+.metadata-form-save-button,
+.extension-menu-close-button,
+.team-effectiveness-submit-button {
+  @apply bg-primary text-white;
+}
+
+.feedbackItem {
+  @apply m-0 break-inside-avoid box-border min-w-0;
+
+  &:focus {
+    @apply outline-none;
+  }
+}
+
+.feedbackItem:focus-visible .mainItemCard {
+  @apply outline-[3px] outline-primary outline-offset-2 shadow-[0_0_8px_rgba(0,120,212,0.3)];
+}
+
+.feedbackItem:focus .mainItemCard,
+.feedbackItemGroupItem:focus .groupedItemCard {
+  @apply outline-[3px] outline-primary outline-offset-2 shadow-[0_0_8px_rgba(0,120,212,0.3)];
+}
+
+.feedbackItem.newFeedbackItem .ms-DocumentCard {
+  @apply animate-[fadeInFromGreen_1000ms_ease-in_1];
+}
+
+.feedbackItem.removeFeedbackItem .ms-DocumentCard {
+  @apply animate-[fadeOutToRed_1000ms_ease-in_1_forwards];
+}
+
+.feedbackItem.hideFeedbackItem .card-content,
+.feedbackItemGroupItem.hideFeedbackItem .card-content {
+  @apply blur-xs pointer-events-none;
+}
+
+.feedback-item-group .document-card-wrapper,
+.feedbackItemGroupItem .document-card-wrapper,
+.feedbackItem .document-card-wrapper {
+  @apply relative w-full;
+}
+
+.feedbackItem .mainItemCard {
+  @apply w-full bg-(--background-color) box-border border-t border-r border-b border-border-gray border-l-0;
+}
+
+.feedbackItem .mainItemCard .card-integral-part {
+  @apply border-l-3;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .ms-DocumentCardActivity .ms-DocumentCardActivity-details span,
+.feedback-item-group .mainItemCard .card-integral-part .ms-DocumentCardActivity .ms-DocumentCardActivity-details span,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .ms-DocumentCardActivity .ms-DocumentCardActivity-details span {
+  @apply text-(--text-secondary-color);
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header,
+.feedback-item-group .mainItemCard .card-integral-part .card-header,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .card-header {
+  @apply inline-flex items-center justify-end gap-2 w-full h-8 mb-2.5 text-(--text-secondary-color);
+}
+
+.focus-outline-primary {
+  @apply outline-2 outline-primary outline-offset-2 rounded-[3px];
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-expand-group-focus {
+  @apply flex items-center h-8 max-w-36 z-1 my-0 mr-auto mb-0 ml-3 py-0 pr-1 pb-0 pl-0 bg-inherit border-none leading-8 text-xs font-semibold text-primary;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-expand-group-focus:focus-visible {
+  @apply outline-2 outline-primary outline-offset-2 rounded;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-add-vote:hover:not(:disabled) i,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .card-header .feedback-add-vote:hover:not(:disabled) i,
+.feedback-item-group .mainItemCard .card-integral-part .card-header .feedback-add-vote:hover:not(:disabled) i,
+.feedback-item-group .groupedItemCard .card-integral-part .card-header .feedback-add-vote:hover:not(:disabled) i {
+  @apply text-primary;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation,
+.feedback-item-group .mainItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation,
+.feedback-item-group .groupedItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation {
+  @apply animate-[push_0.3s_linear_1];
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation i,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation i,
+.feedback-item-group .mainItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation i,
+.feedback-item-group .groupedItemCard .card-integral-part .card-header .feedback-add-vote.voteAnimation i {
+  @apply text-primary!;
+}
+
+.feedbackItemGroupItem .mainItemCard .card-integral-part .card-header .feedback-vote-count,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .card-header .feedback-vote-count,
+.feedbackItem .mainItemCard .card-integral-part .card-header .feedback-vote-count {
+  @apply text-(--text-secondary-color);
+}
+
+.item-actions-menu {
+  @apply mt-2 mr-2;
+
+  & .callout-menu {
+    @apply absolute bg-[rgb(var(--palette-neutral-2))] text-sm shadow-lg drop-shadow-lg min-w-60 z-10;
+
+    &.left {
+      @apply left-0;
+    }
+
+    &.right {
+      @apply right-0;
+    }
+
+    & button {
+      @apply flex items-center gap-2 w-full text-left px-2 py-2 bg-inherit border-0 text-(--text-primary-color) cursor-pointer;
+
+      &:hover {
+        @apply text-primary;
+      }
+
+      &:disabled {
+        @apply opacity-60 cursor-default;
+      }
+
+      & svg {
+        @apply min-w-4 max-w-4 h-4;
+      }
+    }
+  }
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-content,
+.feedback-item-group .mainItemCard .card-integral-part .card-content,
+.feedback-item-group .groupedItemCard .card-integral-part .card-content {
+  @apply flex flex-col mx-4;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-content .original-column-info,
+.feedback-item-group .mainItemCard .card-integral-part .card-content .original-column-info,
+.feedback-item-group .groupedItemCard .card-integral-part .card-content .original-column-info {
+  @apply text-right font-light italic text-xs text-(--text-secondary-color);
+}
+
+.feedbackItem .mainItemCard .card-integral-part .card-content .feedback-yourvote-count,
+.feedback-item-group .mainItemCard .card-integral-part .card-content .feedback-yourvote-count,
+.feedback-item-group .groupedItemCard .card-integral-part .card-content .feedback-yourvote-count {
+  @apply text-xs;
+}
+
+.feedbackItem .mainItemCard .card-integral-part .ms-DocumentCardActivity .msDocumentCardActivity-details {
+  @apply pl-1.5;
+}
+
+.feedbackItemGroupItem .mainItemCard .card-integral-part .anonymous-created-date,
+.feedbackItemGroupItem .groupedItemCard .card-integral-part .anonymous-created-date,
+.feedbackItem .mainItemCard .card-integral-part .anonymous-created-date {
+  @apply py-2 px-4 block text-sm font-light leading-4 overflow-hidden wrap-break-word h-11;
+}
+
+.card-action-timer {
+  @apply mb-2.5 text-(--text-primary-color) bg-(--nav-header-active-item-background) py-0.5 px-1.5;
+
+  & .feedback-action-button {
+    @apply flex items-center justify-center gap-1 h-6 cursor-pointer;
+
+    &:focus {
+      @apply border-none;
+    }
+
+    &:focus-visible {
+      @apply outline-2 outline-primary outline-offset-2 rounded-sm;
+    }
+
+    &:disabled {
+      @apply opacity-50 cursor-default;
+    }
+
+    & svg {
+      @apply w-4 h-4;
+    }
+  }
+}
+
+.feedbackItem .mainItemCard .group-child-feedback-stack {
+  @apply w-full border-l-3 border-border-gray;
+
+  & .grouped-feedback-header {
+    @apply flex items-center gap-1 font-bold text-(--text-primary-color) p-2 bg-(--nav-vertical-background-color);
+
+    & svg {
+      @apply w-5 h-5;
+    }
+  }
+
+  & ul {
+    @apply list-none m-0;
+
+    & li {
+      @apply grid grid-cols-[auto_1fr] [word-wrap:break-word] p-1;
+
+      & .icon {
+        @apply w-6 h-7 border-t-0 border-r-2 border-b-0 border-l-0 border-solid border-(--text-secondary-color) text-(--text-disabled-color);
+
+        & svg {
+          @apply w-4 h-4;
+        }
+      }
+
+      & .original-column-info {
+        @apply text-right font-light italic text-xs;
+      }
+
+      & .related-feedback-title {
+        @apply ml-2.5 text-(--text-primary-color) text-xs content-center [-webkit-box-orient:vertical] overflow-hidden text-ellipsis [-webkit-line-clamp:2];
+        display: -webkit-box;
+      }
+    }
+  }
+}
+
+.retrospectives-move-feedback-item-dialog {
+  @apply bg-(--background-color);
+}
+
+.retrospectives-move-feedback-item-dialog .ms-Dialog-title,
+.retrospectives-move-feedback-item-dialog .ms-Dialog-subText {
+  @apply text-(--text-primary-color);
+}
+
+.retrospectives-move-feedback-item-dialog .move-feedback-item-column-button i {
+  @apply mr-2.5;
+}
+
+.retrospectives-group-feedback-item-dialog {
+  @apply bg-(--background-color);
+}
+
+.retrospectives-group-feedback-item-dialog .ms-SearchBox {
+  @apply my-4;
+}
+
+.retrospectives-group-feedback-item-dialog .title,
+.retrospectives-group-feedback-item-dialog .subText {
+  @apply text-(--text-primary-color);
+}
+
+.retrospectives-group-feedback-item-dialog .output-container {
+  @apply overflow-y-auto h-75 flex flex-col gap-3;
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .no-matching-feedback-message {
+  @apply text-[15px] italic text-(--text-primary-color);
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item {
+  @apply cursor-pointer text-start block w-full pr-3;
+
+  & .editable-document-card-title {
+    @apply min-h-6;
+  }
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item:focus .feedbackItem .mainItemCard,
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item:active .feedbackItem .mainItemCard,
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item:hover .feedbackItem .mainItemCard {
+  @apply border-2 border-solid border-primary;
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem {
+  @apply m-0 w-full text-(--text-primary-color);
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard {
+  @apply min-w-full;
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard .card-header {
+  @apply hidden;
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard .non-editable-text-container {
+  @apply w-full [word-wrap:break-word];
+}
+
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard .anonymous-created-date .card-footer,
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard .non-editable-text-container,
+.retrospectives-group-feedback-item-dialog .output-container .feedback-item-search-result-item .feedbackItem .mainItemCard .card-footer {
+  @apply text-(--text-primary-color);
+}
+
+.retrospectives-group-feedback-item-dialog .ms-DocumentCardActivity-avatar::after {
+  @apply border border-solid border-(--text-primary-color);
+}
+
+.feedback-action-menu {
+  @apply border border-solid border-(--border-subtle-color);
+}
+
+.feedback-action-menu .ms-ContextualMenu-list {
+  @apply bg-(--background-color);
+}
+
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-itemText {
+  @apply text-(--text-primary-color);
+}
+
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-link:hover {
+  @apply text-(--text-primary-color) bg-(--border-subtle-color);
+}
+
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-link:focus,
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-link:focus-visible,
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-link.is-focused {
+  @apply outline-none text-(--text-primary-color) bg-(--border-subtle-color);
+}
+
+.feedback-action-menu .ms-ContextualMenu-list .ms-ContextualMenu-link.is-disabled .ms-ContextualMenu-itemText {
+  @apply text-(--text-disabled-color);
+}
+
+.retro-toast {
+  @apply pointer-events-auto min-w-72 max-w-88;
+}
+
+.retro-toast-container {
+  @apply fixed top-6 right-6 z-10 flex flex-col gap-2 pointer-events-none;
+}
+
+.retro-toast-progress {
+  @apply h-1 bg-primary animate-[retro-toast-progress-shrink] ease-linear;
+  animation-fill-mode: forwards;
+}

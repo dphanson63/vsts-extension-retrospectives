@@ -1,7 +1,7 @@
-﻿import React from "react";
-import { TextField } from "office-ui-fabric-react/lib/TextField";
-import { withAITracking } from "@microsoft/applicationinsights-react-js";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useTrackMetric } from "@microsoft/applicationinsights-react-js";
 import { reactPlugin } from "../utilities/telemetryClient";
+import { parseMarkdown, hasMarkdownFormatting } from "../utilities/markdownUtils";
 
 export interface EditableTextProps {
   isDisabled?: boolean;
@@ -12,190 +12,167 @@ export interface EditableTextProps {
   onSave: (newText: string) => void;
 }
 
-export interface EditableTextState {
-  isEditing: boolean;
-  newText: string;
-  hasErrors: boolean;
-}
+export const EditableText: React.FC<EditableTextProps> = ({ isDisabled, isMultiline, maxLength, text, isChangeEventRequired, onSave }) => {
+  const trackActivity = useTrackMetric(reactPlugin, "EditableText");
 
-class EditableText extends React.Component<EditableTextProps, EditableTextState> {
-  constructor(props: EditableTextProps) {
-    super(props);
+  const [isEditing, setIsEditing] = useState(!text.trim());
+  const [newText, setNewText] = useState(text);
+  const [hasErrors, setHasErrors] = useState(false);
 
-    this.state = {
-      isEditing: !this.props.text.trim(),
-      newText: this.props.text,
-      hasErrors: false,
-    };
-  }
+  const editableTextRef = useRef<HTMLDivElement>(null);
 
-  public componentDidUpdate(prevProps: EditableTextProps) {
-    if (this.props.text !== prevProps.text) {
-      if (!this.state.isEditing) {
-        this.setState({
-          newText: this.props.text
-        });
+  useEffect(() => {
+    if (!isEditing) {
+      setNewText(text);
+    }
+  }, [text, isEditing]);
+
+  const handleClickOutside = useCallback(
+    (event: Event) => {
+      if (editableTextRef.current && !editableTextRef.current.contains(event.target as Node)) {
+        if (!newText.trim()) {
+          setNewText("");
+          setHasErrors(true);
+          onSave("");
+          return;
+        }
+
+        onSave(newText);
+        setIsEditing(false);
+        setHasErrors(!newText.trim());
       }
-    }
-  }
+    },
+    [newText, onSave],
+  );
 
-  private editableTextRef: HTMLElement;
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
-  private readonly handleTextChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue: string) => {
-    if (!newValue.trim()) {
-      this.setState({
-        newText: "",
-        hasErrors: true
-      });
-      return;
-    }
+  const handleTextChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const newValue = event.target.value;
 
-    this.setState({
-      newText: newValue.replace(/\r?|\r/g, ""),
-      hasErrors: !newValue.trim()
-    });
+      if (!newValue.trim()) {
+        setNewText("");
+        setHasErrors(true);
+        return;
+      }
 
-    if (this.props.isChangeEventRequired) {
-      this.props.onSave(newValue.replace(/\r?|\r/g, ""));
-    }
-  }
+      const sanitizedValue = newValue.replace(/\r?|\r/g, "");
+      setNewText(sanitizedValue);
+      setHasErrors(!newValue.trim());
 
-  private readonly handleEdit = (event: React.MouseEvent<HTMLParagraphElement>) => {
+      if (isChangeEventRequired) {
+        onSave(sanitizedValue);
+      }
+    },
+    [isChangeEventRequired, onSave],
+  );
+
+  const handleEdit = useCallback((event: React.MouseEvent<HTMLParagraphElement>) => {
     event.stopPropagation();
-    this.setState({
-      isEditing: true,
-      hasErrors: false
-    });
-  }
+    setIsEditing(true);
+    setHasErrors(false);
+  }, []);
 
-  private readonly handleEditKeyDown = (event: React.KeyboardEvent<HTMLParagraphElement>) => {
+  const handleEditKeyDown = useCallback((event: React.KeyboardEvent<HTMLParagraphElement>) => {
     if (event.key === "Enter") {
       event.stopPropagation();
-      this.setState({
-        isEditing: true,
-        hasErrors: false
-      });
+      setIsEditing(true);
+      setHasErrors(false);
     }
-  }
+  }, []);
 
-  componentDidMount() {
-    document.addEventListener("mousedown", this.handleClickOutside);
-  }
+  const handleKeyPress = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      event.stopPropagation();
 
-  componentWillUnmount() {
-    document.removeEventListener("mousedown", this.handleClickOutside);
-  }
-
-  private readonly handleClickOutside = (event: Event) => {
-    if (this.editableTextRef && !this.editableTextRef.contains(event.target as Node)) {
-      if (!this.state.newText.trim()) {
-        this.setState({
-          newText: "",
-          hasErrors: true
-        }, () => {
-          this.props.onSave("")
-        });
+      if (event.key === "Escape") {
+        setIsEditing(false);
+        setNewText(text);
+        onSave(text);
         return;
       }
 
-      this.props.onSave(this.state.newText);
-      this.setState({
-        isEditing: false,
-        hasErrors: !this.state.newText.trim()
-      });
-    }
-  }
+      if (event.key === "Enter" && (event.shiftKey || event.ctrlKey)) {
+        if (!newText.trim()) {
+          setHasErrors(true);
+          return;
+        }
 
-  private readonly handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    event.stopPropagation();
-
-    // ESC
-    if (event.key === "Escape") {
-      this.setState({
-        isEditing: false,
-        newText: this.props.text,
-      }, () => {
-        this.props.onSave(this.props.text);
-      });
-      return;
-    }
-
-    // Enter + Ctrl
-    if (event.key === "Enter" && event.ctrlKey) {
-      if (!this.state.newText.trim()) {
-        this.setState({ hasErrors: true });
+        setHasErrors(false);
         return;
       }
 
-      this.setState({
-        newText: `${this.state.newText} \n`,
-        isEditing: true,
-        hasErrors: false
-      });
+      if (event.key === "Enter" || event.key === "Tab") {
+        if (!newText.trim()) {
+          setHasErrors(true);
+          return;
+        }
 
-      return;
-    }
-
-    if (event.key === "Enter" || event.key === "Tab") {
-      if (!this.state.newText.trim()) {
-        this.setState({ hasErrors: true });
-        return;
+        onSave(newText);
+        setIsEditing(false);
+        setHasErrors(false);
       }
+    },
+    [newText, text, onSave],
+  );
 
-      this.props.onSave(this.state.newText);
-      this.setState({
-        isEditing: false,
-        hasErrors: false
-      });
-    }
-  }
-
-  public render(): JSX.Element {
-    if (this.state.isEditing) {
-      return (
-        <div
-          className="editable-text-container"
-          ref={(element) => {
-            this.editableTextRef = element;
-          }}
-          aria-live="assertive">
-          <TextField autoFocus
-            ariaLabel="Please enter feedback title"
-            aria-required={true}
-            inputClassName={`editable-text-input${this.state.hasErrors ? " error-border" : ""}`}
-            value={this.state.newText}
-            onChange={this.handleTextChange}
-            className="editable-text-input-container"
-            autoAdjustHeight
-            multiline={this.props.isMultiline}
-            maxLength={this.props.maxLength}
-            resizable={false}
-            onKeyDown={this.handleKeyPress}
-            onClick={(e: React.MouseEvent<HTMLTextAreaElement | HTMLInputElement, MouseEvent>) => {
-              e.stopPropagation();
-            }}
-          />
-          {this.state.hasErrors && <span className="input-validation-message">This cannot be empty.</span>}
-        </div>
-      );
-    }
-
+  if (isEditing) {
     return (
-      <div
-        className="editable-text-container">
-        <p className="editable-text"
-          tabIndex={0}
-          onKeyDown={this.props.isDisabled ? () => { } : this.handleEditKeyDown}
-          onClick={this.props.isDisabled ? () => { } : this.handleEdit}
-          role="textbox"
-          title="Click to edit"
-          aria-required={true}
-          aria-label={`Feedback title is ${this.props.isDisabled ? "obscured during collection." : this.props.text + ". Click to edit."}`}>
-          {this.props.text}
-        </p>
+      <div className="editable-text-container" ref={editableTextRef} onKeyDown={trackActivity} onMouseMove={trackActivity} onTouchStart={trackActivity}>
+        <div className="editable-text-input-container">
+          {isMultiline ? (
+            <textarea
+              autoFocus
+              aria-label="Please enter feedback title"
+              aria-required={true}
+              className={`editable-text-input${hasErrors ? " error-border" : ""}`}
+              value={newText}
+              onChange={handleTextChange}
+              maxLength={maxLength}
+              onKeyDown={handleKeyPress}
+              onClick={(e: React.MouseEvent<HTMLTextAreaElement>) => {
+                e.stopPropagation();
+              }}
+            />
+          ) : (
+            <input
+              autoFocus
+              aria-label="Please enter feedback title"
+              aria-required={true}
+              className={`editable-text-input${hasErrors ? " error-border" : ""}`}
+              type="text"
+              value={newText}
+              onChange={handleTextChange}
+              maxLength={maxLength}
+              onKeyDown={handleKeyPress}
+              onClick={(e: React.MouseEvent<HTMLInputElement>) => {
+                e.stopPropagation();
+              }}
+            />
+          )}
+        </div>
+        {hasErrors && (
+          <span className="input-validation-message" role="alert" aria-live="assertive">
+            This cannot be empty.
+          </span>
+        )}
       </div>
     );
   }
-}
 
-export default withAITracking(reactPlugin, EditableText);
+  return (
+    <div className="editable-text-container" onKeyDown={trackActivity} onMouseMove={trackActivity} onTouchStart={trackActivity}>
+      <p className="editable-text" tabIndex={0} onKeyDown={isDisabled ? () => {} : handleEditKeyDown} onClick={isDisabled ? () => {} : handleEdit} role="textbox" title="Click to edit" aria-required={true} aria-label={`Feedback title is ${isDisabled ? "obscured during collection." : text + ". Click to edit."}`}>
+        {hasMarkdownFormatting(text) ? parseMarkdown(text) : text}
+      </p>
+    </div>
+  );
+};
+
+export default EditableText;

@@ -53,9 +53,9 @@ namespace CollaborationStateService
         options.TokenValidationParameters = new TokenValidationParameters
         {
           LifetimeValidator = (before, expires, token, param) => { return expires > DateTime.UtcNow; },
-          ValidateAudience = false,
-          ValidateIssuer = false,
-          ValidateActor = false,
+          ValidateAudience = true,
+          ValidateIssuer = true,
+          ValidateActor = true,
           ValidateLifetime = true,
           RequireSignedTokens = true,
           RequireExpirationTime = true,
@@ -109,16 +109,16 @@ namespace CollaborationStateService
 
       app.UseAuthentication();
 
-      app.UseAzureSignalR(routes => { routes.MapHub<ReflectBackend.ReflectHub>("/collaborationUpdates"); });
-
       app.Use(async (context, next) =>
       {
-        context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
         await next();
       });
 
       app.UseEndpoints(endpoints =>
       {
+        endpoints.MapHub<ReflectBackend.ReflectHub>("/collaborationUpdates");
+
         endpoints.MapGet("/health", async context =>
         {
           logger.LogInformation("Received health request");

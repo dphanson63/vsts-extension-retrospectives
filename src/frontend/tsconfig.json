@@ -2,14 +2,13 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "outDir": "./dist",
-    "module": "amd",
-    "target": "es5",
-    "downlevelIteration": true,
-    "lib": ["es6", "dom"],
+    "module": "esnext",
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
     "sourceMap": true,
     "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
     "rootDir": ".",
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -17,7 +16,5 @@
     "strictNullChecks": false,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

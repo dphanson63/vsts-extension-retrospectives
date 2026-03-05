@@ -1,47 +1,46 @@
-
-import { mocked } from 'jest-mock';
-import { WorkflowPhase } from '../../../interfaces/workItem';
-import { TooltipOverflowMode } from 'office-ui-fabric-react';
+import React from "react";
+import { mocked } from "jest-mock";
+import { WorkflowPhase } from "../../../interfaces/workItem";
 
 export const testTeamId = "mocked-team-uuid";
 export const testBoardId = "mocked-board-uuid";
 export const testWorkItemType = mocked({
   _links: [],
-  color: '#cc293d',
-  description: 'Test Work Item Type Description',
+  color: "#cc293d",
+  description: "Test Work Item Type Description",
   fieldInstances: [],
   fields: [],
   icon: {
     id: "mocked-column-uuid",
-    url: ''
+    url: "",
   },
   isDisabled: true,
-  name: 'Test Work Item Type Name',
-  referenceName: 'Test Work Item Type Reference Name',
+  name: "Test Work Item Type Name",
+  referenceName: "Test Work Item Type Reference Name",
   states: [],
   transitions: {},
-  url: '',
-  xmlForm: '',
+  url: "",
+  xmlForm: "",
 });
 export const testColumnUuidOne = "mocked-column-uuid-one";
 export const testColumnUuidTwo = "mocked-column-uuid-two";
-export const testColumnTwoTitle = 'Test Feedback Column Two';
+export const testColumnTwoTitle = "Test Feedback Column Two";
 export const testUpvotes = Math.floor(Math.random() * 10);
 export const testFeedbackItem = mocked({
   id: "mocked-feedback-item-uuid",
   element: mocked({
-    innerText: 'Test Inner Text',
-    innerHtml: '<div>Test Inner HTML</div>'
+    innerText: "Test Inner Text",
+    innerHtml: "<div>Test Inner HTML</div>",
   }),
   boardId: testBoardId,
-  title: 'Test Feedback Item',
-  description: 'Test Feedback Item Description',
+  title: "Test Feedback Item",
+  description: "Test Feedback Item Description",
   columnId: testColumnUuidOne,
   originalColumnId: testColumnUuidOne,
   upvotes: testUpvotes,
   voteCollection: { ["vote-collection-uuid"]: testUpvotes },
   createdDate: new Date(),
-  createdByProfileImage: 'testProfileImageSource',
+  createdByProfileImage: "testProfileImageSource",
   userIdRef: "user-ref-uuid",
   timerSecs: Math.floor(Math.random() * 60),
   timerstate: false,
@@ -62,30 +61,29 @@ export const testColumnIds: string[] = [testColumnUuidOne, testColumnUuidTwo];
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const testColumnsObj: any = {};
 testColumnsObj[testColumnUuidOne] = {
-  columnProperties:
-  {
+  columnProperties: {
     id: testColumnUuidOne,
-    title: 'Test Feedback Column One',
-    iconClass: 'far fa-smile',
-    accentColor: '#008000',
+    title: "Test Feedback Column One",
+    iconClass: "far fa-smile",
+    accentColor: "#008000",
+    notes: "",
   },
-  columnItems:
-    [
-      {
-        feedbackItem: testFeedbackItem,
-        actionItems: []
-      },
-    ]
+  columnItems: [
+    {
+      feedbackItem: testFeedbackItem,
+      actionItems: [],
+    },
+  ],
 };
 testColumnsObj[testColumnUuidTwo] = {
-  columnProperties:
-  {
-    id: TooltipOverflowMode,
+  columnProperties: {
+    id: testColumnUuidTwo,
     title: testColumnTwoTitle,
-    iconClass: 'far fa-smile',
-    accentColor: '#008100',
+    iconClass: "far fa-smile",
+    accentColor: "#008100",
+    notes: "",
   },
-  columnItems: []
+  columnItems: [],
 };
 export const testColumns = mocked(testColumnsObj);
 
@@ -96,17 +94,17 @@ export const testColumnProps = mocked({
   columnId: testColumnUuidOne,
   originalColumnId: testColumnUuidOne,
   accentColor: testColumns[testColumnUuidOne].columnProperties.accentColor,
-  iconClass: testColumns[testColumnUuidOne].columnProperties.iconClass,
+  icon: <i className={testColumns[testColumnUuidOne].columnProperties.iconClass} />,
   workflowPhase: WorkflowPhase.Act,
   isDataLoaded: false,
   columnItems: testColumns[testColumnUuidOne].columnItems,
   team: {
     id: "team-uuid",
     identity: {
-      customDisplayName: 'Test Web API Identity Custom Display Name',
+      customDisplayName: "Test Web API Identity Custom Display Name",
       descriptor: {
-        identifier: 'Test Identifier',
-        identityType: 'Test Identity Type'
+        identifier: "Test Identifier",
+        identityType: "Test Identity Type",
       },
       id: "team-identity-uuid",
       isActive: true,
@@ -117,21 +115,21 @@ export const testColumnProps = mocked({
       members: [],
       metaTypeId: 5,
       properties: [],
-      providerDisplayName: 'Test Web API Identity Provider Display Name',
+      providerDisplayName: "Test Web API Identity Provider Display Name",
       resourceVersion: 10,
-      socialDescriptor: 'Test Social Descriptor',
-      subjectDescriptor: 'Test Subject Descriptor',
+      socialDescriptor: "Test Social Descriptor",
+      subjectDescriptor: "Test Subject Descriptor",
       uniqueUserId: 500,
     },
-    name: 'Test Web API Team Name',
-    description: 'Test Web API Team Description',
-    identityUrl: '',
+    name: "Test Web API Team Name",
+    description: "Test Web API Team Description",
+    identityUrl: "",
     projectId: "project-uuid",
-    projectName: 'Test Azure DevOps Retrospectives Extension',
-    url: ''
+    projectName: "Test Azure DevOps Retrospectives Extension",
+    url: "",
   },
   boardId: testBoardId,
-  boardTitle: 'Test Feedback Board',
+  boardTitle: "Test Feedback Board",
   defaultActionItemIteration: testTeamId,
   defaultActionItemAreaPath: testTeamId,
   nonHiddenWorkItemTypes: [testWorkItemType],
@@ -141,10 +139,16 @@ export const testColumnProps = mocked({
   hideFeedbackItems: false,
   groupIds: [],
   isFocusModalHidden: false,
-  onVoteCasted: jest.fn(() => { }),
-  addFeedbackItems: jest.fn(() => { }),
-  removeFeedbackItemFromColumn: jest.fn(() => { }),
-  refreshFeedbackItems: jest.fn(() => { }),
+  showColumnEditButton: false,
+  columnNotes: "",
+  onColumnNotesChange: jest.fn(() => {}),
+  onVoteCasted: jest.fn(() => {}),
+  addFeedbackItems: jest.fn(() => {}),
+  removeFeedbackItemFromColumn: jest.fn(() => {}),
+  refreshFeedbackItems: jest.fn(() => {}),
+  activeTimerFeedbackItemId: null,
+  requestTimerStart: jest.fn(),
+  notifyTimerStopped: jest.fn(() => {}),
 });
 
 // Grouped Column Mocks below
@@ -156,41 +160,41 @@ export const testGroupedItemPropsOne = mocked({
   groupedCount: 0,
   isGroupExpanded: false,
   isMainItem: true,
-  parentItemId: '',
-  setIsGroupBeingDragged: jest.fn(() => { }),
-  toggleGroupExpand: jest.fn(() => { }),
-  updateGroupCardStackHeight: jest.fn(() => { }),
+  parentItemId: "",
+  setIsGroupBeingDragged: jest.fn(() => {}),
+  toggleGroupExpand: jest.fn(() => {}),
+  updateGroupCardStackHeight: jest.fn(() => {}),
 });
 
 export const testGroupedItemPropsTwo = mocked({
   groupedCount: 1,
   isGroupExpanded: false,
   isMainItem: true,
-  parentItemId: '',
-  setIsGroupBeingDragged: jest.fn(() => { }),
-  toggleGroupExpand: jest.fn(() => { }),
-  updateGroupCardStackHeight: jest.fn(() => { }),
+  parentItemId: "",
+  setIsGroupBeingDragged: jest.fn(() => {}),
+  toggleGroupExpand: jest.fn(() => {}),
+  updateGroupCardStackHeight: jest.fn(() => {}),
 });
 
 export const testGroupFeedbackItemTwo = mocked({
   id: "mocked-feedback-group-item-uuid-two",
   element: mocked({
-    innerText: 'Test Inner Text',
-    innerHtml: '<div>Test Inner HTML</div>'
+    innerText: "Test Inner Text",
+    innerHtml: "<div>Test Inner HTML</div>",
   }),
   boardId: testBoardId,
-  title: 'Test Feedback Item',
-  description: 'Test Feedback Item Description',
+  title: "Test Feedback Item",
+  description: "Test Feedback Item Description",
   columnId: testGroupColumnUuidOne,
   originalColumnId: testGroupColumnUuidTwo,
   upvotes: testUpvotes,
   voteCollection: { ["vote-collection-uuid"]: testUpvotes },
   createdDate: new Date(),
-  createdByProfileImage: 'testProfileImageSource',
+  createdByProfileImage: "testProfileImageSource",
   groupedItemProps: {
     ...testGroupedItemPropsTwo,
     groupedCount: 0,
-    isMainItem: false
+    isMainItem: false,
   },
   userIdRef: "user-ref-uuid",
   timerSecs: Math.floor(Math.random() * 60),
@@ -198,25 +202,25 @@ export const testGroupFeedbackItemTwo = mocked({
   timerId: "timer-uuid",
   groupIds: [],
   isGroupedCarouselItem: true,
-  parentFeedbackItemId: 'mocked-feedback-group-item-uuid-one',
-  childFeedbackItemIds: []
+  parentFeedbackItemId: "mocked-feedback-group-item-uuid-one",
+  childFeedbackItemIds: [],
 });
 
 export const testGroupFeedbackItemOne = mocked({
   id: "mocked-feedback-group-item-uuid-one",
   element: mocked({
-    innerText: 'Test Inner Text',
-    innerHtml: '<div>Test Inner HTML</div>'
+    innerText: "Test Inner Text",
+    innerHtml: "<div>Test Inner HTML</div>",
   }),
   boardId: testBoardId,
-  title: 'Test Feedback Item',
-  description: 'Test Feedback Item Description',
+  title: "Test Feedback Item",
+  description: "Test Feedback Item Description",
   columnId: testGroupColumnUuidOne,
   originalColumnId: testGroupColumnUuidOne,
   upvotes: testUpvotes,
   voteCollection: { ["vote-collection-uuid"]: testUpvotes },
   createdDate: new Date(),
-  createdByProfileImage: 'testProfileImageSource',
+  createdByProfileImage: "testProfileImageSource",
   groupedItemProps: testGroupedItemPropsTwo,
   userIdRef: "user-ref-uuid",
   timerSecs: Math.floor(Math.random() * 60),
@@ -225,7 +229,7 @@ export const testGroupFeedbackItemOne = mocked({
   groupIds: [],
   isGroupedCarouselItem: true,
   parentFeedbackItemId: null,
-  childFeedbackItemIds: [testGroupFeedbackItemTwo.id]
+  childFeedbackItemIds: [testGroupFeedbackItemTwo.id],
 });
 
 export const testGroupColumnIds: string[] = [testGroupColumnUuidOne];
@@ -251,34 +255,33 @@ export const testGroupColumnItemTwo = mocked({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const testGroupColumnsObj: any = {};
 testGroupColumnsObj[testGroupColumnUuidOne] = {
-  columnProperties:
-  {
+  columnProperties: {
     id: testGroupColumnUuidOne,
-    title: 'Test Group Feedback Column One',
-    iconClass: 'far fa-smile',
-    accentColor: '#008000',
+    title: "Test Group Feedback Column One",
+    iconClass: "far fa-smile",
+    accentColor: "#008000",
+    notes: "",
   },
-  columnItems:
-    [
-      {
-        feedbackItem: testGroupFeedbackItemOne,
-        actionItems: []
-      },
-      {
-        feedbackItem: testGroupFeedbackItemTwo,
-        actionItems: []
-      }
-    ]
+  columnItems: [
+    {
+      feedbackItem: testGroupFeedbackItemOne,
+      actionItems: [],
+    },
+    {
+      feedbackItem: testGroupFeedbackItemTwo,
+      actionItems: [],
+    },
+  ],
 };
 testGroupColumnsObj[testGroupColumnUuidTwo] = {
-  columnProperties:
-  {
+  columnProperties: {
     id: testGroupColumnUuidTwo,
-    title: 'Test Group Feedback Column Two',
-    iconClass: 'far fa-smile',
-    accentColor: '#008000',
+    title: "Test Group Feedback Column Two",
+    iconClass: "far fa-smile",
+    accentColor: "#008000",
+    notes: "",
   },
-  columnItems: []
+  columnItems: [],
 };
 export const testGroupColumns = mocked(testGroupColumnsObj);
 
@@ -289,17 +292,17 @@ export const testGroupColumnProps = mocked({
   columnId: testGroupColumnUuidOne,
   originalColumnId: testGroupColumnUuidOne,
   accentColor: testGroupColumns[testGroupColumnUuidOne].columnProperties.accentColor,
-  iconClass: testGroupColumns[testGroupColumnUuidOne].columnProperties.iconClass,
+  icon: <i className={testGroupColumns[testGroupColumnUuidOne].columnProperties.iconClass} />,
   workflowPhase: WorkflowPhase.Act,
   isDataLoaded: false,
   columnItems: testGroupColumns[testGroupColumnUuidOne].columnItems,
   team: {
     id: "team-uuid",
     identity: {
-      customDisplayName: 'Test Web API Identity Custom Display Name',
+      customDisplayName: "Test Web API Identity Custom Display Name",
       descriptor: {
-        identifier: 'Test Identifier',
-        identityType: 'Test Identity Type'
+        identifier: "Test Identifier",
+        identityType: "Test Identity Type",
       },
       id: "team-identity-uuid",
       isActive: true,
@@ -310,21 +313,21 @@ export const testGroupColumnProps = mocked({
       members: [],
       metaTypeId: 5,
       properties: [],
-      providerDisplayName: 'Test Web API Identity Provider Display Name',
+      providerDisplayName: "Test Web API Identity Provider Display Name",
       resourceVersion: 10,
-      socialDescriptor: 'Test Social Descriptor',
-      subjectDescriptor: 'Test Subject Descriptor',
+      socialDescriptor: "Test Social Descriptor",
+      subjectDescriptor: "Test Subject Descriptor",
       uniqueUserId: 500,
     },
-    name: 'Test Web API Team Name',
-    description: 'Test Web API Team Description',
-    identityUrl: '',
+    name: "Test Web API Team Name",
+    description: "Test Web API Team Description",
+    identityUrl: "",
     projectId: "project-uuid",
-    projectName: 'Test Azure DevOps Retrospectives Extension',
-    url: ''
+    projectName: "Test Azure DevOps Retrospectives Extension",
+    url: "",
   },
   boardId: testBoardId,
-  boardTitle: 'Test Feedback Board',
+  boardTitle: "Test Feedback Board",
   defaultActionItemIteration: testTeamId,
   defaultActionItemAreaPath: testTeamId,
   nonHiddenWorkItemTypes: [testWorkItemType],
@@ -334,8 +337,14 @@ export const testGroupColumnProps = mocked({
   hideFeedbackItems: false,
   groupIds: [],
   isFocusModalHidden: false,
-  onVoteCasted: jest.fn(() => { }),
-  addFeedbackItems: jest.fn(() => { }),
-  removeFeedbackItemFromColumn: jest.fn(() => { }),
-  refreshFeedbackItems: jest.fn(() => { }),
+  showColumnEditButton: false,
+  columnNotes: "",
+  onColumnNotesChange: jest.fn(() => {}),
+  onVoteCasted: jest.fn(() => {}),
+  addFeedbackItems: jest.fn(() => {}),
+  removeFeedbackItemFromColumn: jest.fn(() => {}),
+  refreshFeedbackItems: jest.fn(() => {}),
+  activeTimerFeedbackItemId: null,
+  requestTimerStart: jest.fn(),
+  notifyTimerStopped: jest.fn(() => {}),
 });

@@ -1,5 +1,5 @@
-import { IdentityRef } from 'azure-devops-extension-api/WebApi';
-import { WorkflowPhase } from './workItem';
+import { IdentityRef } from "azure-devops-extension-api/WebApi";
+import { WorkflowPhase } from "./workItem";
 
 export interface IUserVisit {
   teamId: string;
@@ -25,18 +25,20 @@ export interface IFeedbackBoardDocument {
   isIncludeTeamEffectivenessMeasurement?: boolean;
   isAnonymous?: boolean;
   shouldShowFeedbackAfterCollect?: boolean;
-  displayPrimeDirective?: boolean;
   maxVotesPerUser: number;
   boardVoteCollection: { [voter: string]: number };
   teamEffectivenessMeasurementVoteCollection: ITeamEffectivenessMeasurementVoteCollection[];
+  emailContent?: string;
   permissions?: IFeedbackBoardDocumentPermissions;
   isPublic?: boolean;
   isArchived?: boolean;
+  archivedDate?: Date;
+  archivedBy?: IdentityRef;
 }
 
 export class FeedbackBoardDocumentHelper {
   static sort(board1: IFeedbackBoardDocument, board2: IFeedbackBoardDocument): number {
-    return (new Date(board2.createdDate).getTime() - new Date(board1.createdDate).getTime())
+    return new Date(board2.createdDate).getTime() - new Date(board1.createdDate).getTime();
   }
 
   /**
@@ -66,14 +68,15 @@ export interface IFeedbackBoardDocumentPermissions {
 
 export interface ITeamEffectivenessMeasurementVoteCollection {
   userId: string;
-  responses: { questionId: number, selection: number }[]
+  responses: { questionId: number; selection: number }[];
 }
 
 export interface IFeedbackColumn {
   id: string;
   title: string;
-  iconClass: string;
+  iconClass?: string;
   accentColor: string;
+  notes?: string;
 }
 
 export interface IFeedbackItemDocument {
@@ -91,13 +94,12 @@ export interface IFeedbackItemDocument {
   voteCollection: { [voter: string]: number };
   createdBy?: IdentityRef;
   createdDate: Date;
-  modifedDate?: Date;
+  modifiedDate?: Date;
   modifiedBy?: IdentityRef;
   userIdRef: string;
   timerSecs: number;
-  timerstate: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  timerId: any;
+  timerState: boolean;
+  timerId: ReturnType<typeof setInterval> | null;
   groupIds: string[];
   isGroupedCarouselItem: boolean;
 }
